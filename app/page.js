@@ -1,113 +1,96 @@
-import Image from 'next/image'
+export const dynamic = 'force-dynamic'
 
-export default function Home() {
+import { loadSummary } from '../lib/load-summary'
+import Card from './card'
+
+// Round to 1 digit precision and keep possible .0 at the end
+function digitPrecision(val) {
+  let res = (Math.round(val * 10) / 10).toString()
+  if (res.charAt(res.length - 2) != '.')
+    res = res + ".0"
+  return res
+
+}
+
+// Generates GB from byte size with 1 digit precision
+function formatSize(size) {
+  return digitPrecision(size / 1E9) + " GB"
+}
+
+// Format days (TODO: Use years, months, days, hours and keep only the 2 higher units)
+function formatDays(days) {
+  let res = digitPrecision(days)
+  return res + " days"
+}
+
+// Format percentage with 1 digit precision
+function formatPercent(percent) {
+  let res = digitPrecision(percent)
+  return res + " %"
+}
+
+// Format seconds in HH:MM:SS format with HH part omitted if less than 3600 seconds
+function formatSeconds(totalSeconds) {
+  const hours = Math.floor(totalSeconds / 3600)
+  let seconds = totalSeconds % 3600
+  const minutes = Math.floor(seconds / 60)
+  seconds = seconds % 60
+  const res = [hours, minutes, seconds]
+    .filter((v, i) => v > 0 || i > 0)
+    .map(v => v.toString().padStart(2, '0'))
+    .join(':')
+  return res
+}
+
+// Format bitcoin amount to exactly 8 digits precision
+function formatBitcoinAmount(amount) {
+  let res = amount.toString()
+  let dotPosition = res.indexOf('.')
+  if (dotPosition == -1) {
+    res += "."
+    dotPosition = res.length - 1
+  }
+  res = res.padEnd(dotPosition + 8 + 1, '0')
+  return res + " ₿"
+}
+
+function formatFee(fee) {
+  return fee.toString() + " sat/vB"
+}
+
+export default async function Home() {
+  const summary = await loadSummary()
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.js</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+    <main className="flex flex-col gap-1 m-1 w-96 text-sm">
+      <Card title={"Blockchain"} items={[
+        {Height: summary.headers}, {"Difficulty epoch": summary.diff_epoch}, {"Halving epoch": summary.halving_epoch}
+      ]}/>
+      <Card title={"Mempool"} items={[
+        {"Transactions": summary.mempool.ntx}, {"Fees": formatBitcoinAmount(summary.mempool.fees)}
+      ]}/>
+      <Card title={"Next block"} items={[
+        {"Transactions": summary.template.ntx}, {"Fees": formatBitcoinAmount(summary.template.fees)},
+        {"Time since last block": formatSeconds(summary.time_since_last_bloc)}
+      ]}/>
+      <Card title={"Next retarget"} items={[
+        {"Remaining blocks": summary.next_retarget.blocks}, {"Estimated delay": formatDays(summary.next_retarget.days)},
+        {"Estimated adjustement": formatPercent(summary.next_retarget.estimated_diff_adj_percent)},
+        {"Last adjustement": formatPercent(summary.prev_diff_adj_percent)}
+      ]}/>
+      <Card title={"Next halving"} items={[
+        {"Remaining blocks": summary.next_halving.blocks}, {"Estimated delay": formatDays(summary.next_halving.days)}
+      ]}/>
+      <Card title={"Node"} items={[
+        {"Upload": formatSize(summary.totalbytessent)}, {"Download": formatSize(summary.totalbytesrecv)},
+        {"Data size": formatSize(summary.size_on_disk)}, {"Uptime": formatDays(summary.uptime_days)}
+      ]}/>
+      {/* Not publicly routable nodes are counted in the total but not are displayed apart, electrum server is one such node */}
+      <Card title={"Peers"} items={[
+        {"Total": summary.peers.total}, {"IPv4": summary.peers.ipv4}, {"IPv6": summary.peers.ipv6}, {"Onion": summary.peers.onion}
+      ]}/>
+      <Card title={"Recommended fees"} items={[
+        {"Immediate": formatFee(summary.feerates["1"])}, {"1 hour": formatFee(summary.feerates["6"])}, {"1 day": formatFee(summary.feerates["144"])}
+      ]}/>
     </main>
   )
 }
