@@ -10,11 +10,16 @@ Note: Any mention of 192.168.110.121 throughout the document should be replaced 
 
 ## Development
 
-First, adapt .env file at the root:
-- redefine BITCOIND_COOKIE_PATH to point to your bitcoin node `.cookie` file
-- set BITCOIND_PORT to your bitcoin RPC port.
+Adapt .env file at the root:
+  - redefine BITCOIND_COOKIE_PATH to point to your bitcoin node `.cookie` file
+  - set BITCOIND_PORT to your bitcoin RPC port.
 
-Then, run the development server:
+Install the dependencies:
+```bash
+npm install
+```
+
+Run the development server:
 ```bash
 npm run dev
 ```
@@ -43,7 +48,7 @@ Note that in both development and deployment cases the port used is the same (30
 
 Stop any interactive `npm run start` session.
 
-Create `/etc/systemd/system/node-summary.service` file with following content (replace working directory and npm path by your own):
+Create `/etc/systemd/system/node-summary.service` file with following content (replace working directory, npm path, user, group by your own):
 ```ini
 [Unit]
 Description=BTC RPC Summary
@@ -86,43 +91,44 @@ Get the logs with: `journalctl -S <hh:mm> -u node-summary -o cat -f`
 ```json
 {
   "feerates": {
-    "1": 111,
-    "6": 79,
-    "144": 19
+    "1": 83,
+    "6": 46,
+    "144": 20
   },
-  "uptime_days": 23.785,
+  "uptime_days": 30.512,
   "diff_epoch": 393,
   "halving_epoch": 4,
-  "blocks": 790604,
-  "headers": 790604,
-  "size_on_disk": 547057274650,
-  "totalbytesrecv": 19716881205,
-  "totalbytessent": 137218902796,
+  "blocks": 791610,
+  "headers": 791610,
+  "size_on_disk": 549036107585,
+  "totalbytesrecv": 26138792282,
+  "totalbytessent": 172915725919,
   "peers": {
-    "total": 66,
-    "ipv4": 8,
+    "total": 64,
+    "ipv4": 10,
     "ipv6": 0,
-    "onion": 57,
+    "onion": 53,
     "not_publicly_routable": 1
   },
   "template": {
-    "fees": 0.63807639,
-    "ntx": 2201
+    "fees": 0.31639836,
+    "ntx": 4350
   },
   "mempool": {
-    "fees": 14.07626074,
-    "ntx": 69342
+    "fees": 15.15287524,
+    "ntx": 64817,
+    "ntx_per_second": 3.238
   },
-  "time_since_last_bloc": 258,
+  "time_since_last_bloc": 394,
   "prev_diff_adj_percent": 3.217,
   "next_retarget": {
-    "blocks": 1684,
-    "days": 11.694,
-    "estimated_diff_adj_percent": -6.732
+    "blocks": 678,
+    "days": 4.708,
+    "estimated_diff_adj_percent": 1.01
   },
   "next_halving": {
-    "blocks": 49396,
-    "days": 343.028
+    "blocks": 48390,
+    "days": 336.042
   },
   "revalidate": "5"
 }
