@@ -17,7 +17,7 @@ export default async function Card({title, items}) {
             </div>
           ))}
         </div>
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-1">
           <div>
             {
               items.map((item, index) => {

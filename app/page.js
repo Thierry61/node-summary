@@ -83,7 +83,7 @@ function formatEpoch(epoch) {
 export default async function Home() {
   const summary = await loadSummary()
   return (
-    <main className="flex flex-col gap-1 m-1 w-96 text-sm">
+    <main className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-1 m-1 text-sm">
       <Card title={"Blockchain"} items={[
         {"Height": formatBlocks(summary.headers)},
         {"Difficulty epoch": formatEpoch(summary.diff_epoch)},
@@ -97,17 +97,13 @@ export default async function Home() {
       <Card title={"Next block"} items={[
         {"Transactions": formatTransactions(summary.template.ntx)},
         {"Fees": formatBitcoinAmount(summary.template.fees)},
-        {"Time since last block": formatSeconds(summary.time_since_last_bloc)}
+        {"Elapsed time": formatSeconds(summary.time_since_last_bloc)}
       ]}/>
       <Card title={"Next retarget"} items={[
         {"Remaining blocks": formatBlocks(summary.next_retarget.blocks)},
         {"Estimated delay": formatDays(summary.next_retarget.days)},
-        {"Estimated adjustement": formatPercent(summary.next_retarget.estimated_diff_adj_percent)},
+        {"Estim. adjustement": formatPercent(summary.next_retarget.estimated_diff_adj_percent)},
         {"Last adjustement": formatPercent(summary.prev_diff_adj_percent)}
-      ]}/>
-      <Card title={"Next halving"} items={[
-        {"Remaining blocks": formatBlocks(summary.next_halving.blocks)},
-        {"Estimated delay": formatDays(summary.next_halving.days)}
       ]}/>
       <Card title={"Node"} items={[
         {"Upload": formatSize(summary.totalbytessent)}, {"Download": formatSize(summary.totalbytesrecv)},
@@ -124,6 +120,10 @@ export default async function Home() {
         {"Immediate": formatFee(summary.feerates["1"])},
         {"1 hour": formatFee(summary.feerates["6"])},
         {"1 day": formatFee(summary.feerates["144"])}
+      ]}/>
+      <Card title={"Next halving"} items={[
+        {"Remaining blocks": formatBlocks(summary.next_halving.blocks)},
+        {"Estimated delay": formatDays(summary.next_halving.days)}
       ]}/>
     </main>
   )

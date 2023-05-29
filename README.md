@@ -6,6 +6,8 @@ The app has one web page (/) and one API entry point (/api/summary). The web pag
 
 As there is no interactivity, the web page is still operational when javascript is disabled, including automatic refresh which is managed by http-equiv="refresh" meta tag.
 
+The information is divided in a set of cards spread on a grid. The grid uses Tailwind breakpoint prefixes and grid template columns so that the layout is responsive to the dynamic screen size and orientation.
+
 Note: Any mention of 192.168.110.121 throughout the document should be replaced by your own address of deployment.
 
 ## Development
@@ -133,7 +135,3 @@ Get the logs with: `journalctl -S <hh:mm> -u node-summary -o cat -f`
   "revalidate": "5"
 }
 ```
-
-
-
-
