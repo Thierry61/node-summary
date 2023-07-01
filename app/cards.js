@@ -35,7 +35,7 @@ function formatSeconds(totalSeconds) {
     .filter((v, i) => v > 0 || i > 0)
     .map(v => v.toString().padStart(2, '0'))
     .join(':')
-  return [res, hours > 0 ? "HH:MM:SS" : "MM:SS"]
+  return [res, hours > 0 ? "hh:mm:ss" : "mm:ss"]
 }
 
 // Format bitcoin amount to exactly 8 digits precision
@@ -47,7 +47,7 @@ function formatBitcoinAmount(amount) {
     dotPosition = res.length - 1
   }
   res = res.padEnd(dotPosition + 8 + 1, '0')
-  return [res, "₿"]
+  return [res, "btc"]
 }
 
 function formatFee(fee) {
@@ -55,20 +55,24 @@ function formatFee(fee) {
 }
 
 function formatRate(rate) {
-  return rate === undefined ? undefined : [digitPrecision(rate), <div key="1">txn·s<sup>-1</sup></div>]
+  return rate === undefined ? undefined : [digitPrecision(rate), "txns/s"]
 }
 
-function formatBlocks(fee) {
-  return [fee, "blocks"]
+function formatBlocks(val) {
+  return [val, "blocks"]
+}
+
+function formatRetargets(val) {
+  return [val, "adjust."]
 }
 
 // TXN is abbreviation for transactions (https://en.wikipedia.org/wiki/TXN#:~:text=TXN%2C%20abbreviation%20for%20transaction%20(disambiguation))
-function formatTransactions(fee) {
-  return [fee, "txns"]
+function formatTransactions(val) {
+  return [val, "txns"]
 }
 
-function formatPeers(fee) {
-  return [fee, "nodes"]
+function formatPeers(val) {
+  return [val, "nodes"]
 }
 
 function formatEpoch(epoch) {
@@ -85,6 +89,11 @@ export default async function Cards({summary}) {
         {"Difficulty epoch": formatEpoch(summary.diff_epoch)},
         {"Halving epoch": formatEpoch(summary.halving_epoch)}
       ]}/>
+      <Card title={"Recommended fees"} items={[
+        {"Immediate": formatFee(summary.feerates["1"])},
+        {"1 hour": formatFee(summary.feerates["6"])},
+        {"1 day": formatFee(summary.feerates["144"])}
+      ]}/>
       <Card title={"Mempool"} items={[
         {"Transactions": formatTransactions(summary.mempool.ntx)},
         {"Fees": formatBitcoinAmount(summary.mempool.fees)},
@@ -98,29 +107,32 @@ export default async function Cards({summary}) {
       <Card title={"Next retarget"} items={[
         {"Remaining blocks": formatBlocks(summary.next_retarget.blocks)},
         {"Estimated delay": formatDays(summary.next_retarget.days)},
-        {"Estim. adjustement": formatPercent(summary.next_retarget.estimated_diff_adj_percent)},
-        {"Last adjustement": formatPercent(summary.prev_diff_adj_percent)}
-      ]}/>
-      <Card title={"Node"} items={[
-        {"Upload": formatSize(summary.totalbytessent)}, {"Download": formatSize(summary.totalbytesrecv)},
-        {"Data size": formatSize(summary.size_on_disk)}, {"Uptime": formatDays(summary.uptime_days)}
-      ]}/>
-      {/* Not publicly routable nodes are counted in the total but not are displayed apart, electrum server is one such node */}
-      <Card title={"Peers"} items={[
-        {"Total": formatPeers(summary.peers.total)},
-        {"IPv4": formatPeers(summary.peers.ipv4)},
-        {"IPv6": formatPeers(summary.peers.ipv6)},
-        {"Onion": formatPeers(summary.peers.onion)}
-      ]}/>
-      <Card title={"Recommended fees"} items={[
-        {"Immediate": formatFee(summary.feerates["1"])},
-        {"1 hour": formatFee(summary.feerates["6"])},
-        {"1 day": formatFee(summary.feerates["144"])}
+        {"Estim. adjustment": formatPercent(summary.next_retarget.estimated_diff_adj_percent)},
+        {"Last adjustment": formatPercent(summary.prev_diff_adj_percent)}
       ]}/>
       <Card title={"Next halving"} items={[
         {"Remaining blocks": formatBlocks(summary.next_halving.blocks)},
+        {"Remaining retargets": formatRetargets(summary.next_halving.retargets)},
         {"Estimated delay": formatDays(summary.next_halving.days)}
       ]}/>
+      <Card title={"Node"} items={[
+        {"Uptime": formatDays(summary.uptime_days)},
+        {"Upload": formatSize(summary.totalbytessent)},
+        {"Download": formatSize(summary.totalbytesrecv)},
+        {"Data size": formatSize(summary.size_on_disk)}
+      ]}/>
+      <Card title={`${summary.peers.total} peers`} items={[
+        {"IPv4": formatPeers(summary.peers.ipv4)},
+        {"IPv6": formatPeers(summary.peers.ipv6)},
+        {"Onion": formatPeers(summary.peers.onion)},
+        /* Electrum server is an example of a not publicly routable node */
+        {"Not publicly routable": formatPeers(summary.peers.not_publicly_routable)}
+      ]}/>
+      <Card title={"Top versions"} items={summary.sub_versions.slice(0, 4).map(sv => {
+          let o = {}
+          o[sv[0]] = formatPeers(sv[1])
+          return o
+        })}/>
     </div>
   )
 }
