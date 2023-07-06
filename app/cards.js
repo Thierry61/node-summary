@@ -27,15 +27,17 @@ function formatPercent(percent) {
 
 // Format seconds in HH:MM:SS format with HH part omitted if less than 3600 seconds
 function formatSeconds(totalSeconds) {
-  const hours = Math.floor(totalSeconds / 3600)
-  let seconds = totalSeconds % 3600
+  const absoluteSeconds = Math.abs(totalSeconds)
+  const sign = absoluteSeconds >= 0 ? '' : '-'
+  const hours = Math.floor(absoluteSeconds / 3600)
+  let seconds = absoluteSeconds % 3600
   const minutes = Math.floor(seconds / 60)
   seconds = seconds % 60
   const res = [hours, minutes, seconds]
     .filter((v, i) => v > 0 || i > 0)
     .map(v => v.toString().padStart(2, '0'))
     .join(':')
-  return [res, hours > 0 ? "hh:mm:ss" : "mm:ss"]
+  return [sign + res, hours > 0 ? "hh:mm:ss" : "mm:ss"]
 }
 
 // Format bitcoin amount to exactly 8 digits precision
