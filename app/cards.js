@@ -13,10 +13,53 @@ function formatSize(size) {
   return [digitPrecision(size / 1E9),  "GB"]
 }
 
-// Format days (TODO: Use years, months, days, hours and keep only the 2 higher units)
+// Generate plural s for value != 1
+function s(val) {
+  return val == 1 ? "" : "s"
+}
+
+// Format days. Use the 2 possible higher units of: years, months/weeks, days, hours, minutes
+const durations = [
+  { unit: "year", days: 365.25 },
+  { unit: "month", days: 365.25/12 },
+  { unit: "week", days: 7 },
+  { unit: "day", days: 1 },
+  { unit: "hour", days: 1/24 },
+  { unit: "minute", days: 1/24/60 },
+]
 function formatDays(days) {
-  let res = digitPrecision(days)
-  return [res, "days"]
+  // Note that last element is not iterated
+  for (let i = 0; i < durations.length - 1; i++) {
+    const hiDuration = durations[i]
+    if (days > hiDuration.days) {
+      // floor instead of round to get 9 months 21 days instead 10 months -10 days
+      let hi = Math.floor(days / hiDuration.days)
+      // Display months + days instead of months + weeks
+      const lowDuration = hiDuration.unit == "month" ? durations[i + 2] : durations[i + 1]
+      let low = Math.round((days - hi * hiDuration.days) / lowDuration.days)
+      // Adjust hi and low to get 5 days instead of 4 days 24 hours
+      if (Math.abs(low * lowDuration.days - hiDuration.days) < Number.EPSILON) {
+        hi += 1
+        low = 0
+      }
+      // Don't display nul low value and return regular (value, unit) pair instead
+      if (low == 0) {
+        return [hi, hiDuration.unit + s(hi)]
+      }
+      return [
+        <div key="2" className='flex justify-end gap-1'>
+          <div>{hi}</div>
+          <div className='font-sans text-gray-400'>{hiDuration.unit + s(hi)}</div>
+          <div>{low}</div>
+        </div>,
+        lowDuration.unit + s(low)
+      ]
+    }
+  }
+  // Special case for last element (display minutes in regular (value, unit) pair format)
+  const lastDuration = durations[durations.length - 1]
+  let res = Math.round(days / lastDuration.days)
+  return [res, lastDuration.unit + s(res)]
 }
 
 // Format percentage with 1 digit precision
@@ -61,7 +104,7 @@ function formatRate(rate) {
 }
 
 function formatBlocks(val) {
-  return [val, "blocks"]
+  return [val, "block" + s(val)]
 }
 
 function formatRetargets(val) {
@@ -74,7 +117,7 @@ function formatTransactions(val) {
 }
 
 function formatPeers(val) {
-  return [val, "nodes"]
+  return [val, "node" + s(val)]
 }
 
 function formatEpoch(epoch) {
@@ -108,13 +151,13 @@ export default async function Cards({summary}) {
       ]}/>
       <Card title={"Next retarget"} items={[
         {"Remaining blocks": formatBlocks(summary.next_retarget.blocks)},
-        {"Estimated delay": formatDays(summary.next_retarget.days)},
         {"Estim. adjustment": formatPercent(summary.next_retarget.estimated_diff_adj_percent)},
-        {"Last adjustment": formatPercent(summary.prev_diff_adj_percent)}
+        {"Last adjustment": formatPercent(summary.prev_diff_adj_percent)},
+        {"Estimated delay": formatDays(summary.next_retarget.days)},
       ]}/>
       <Card title={"Next halving"} items={[
         {"Remaining blocks": formatBlocks(summary.next_halving.blocks)},
-        {"Remaining retargets": formatRetargets(summary.next_halving.retargets)},
+        {"Remaining adjust": formatRetargets(summary.next_halving.retargets)},
         {"Estimated delay": formatDays(summary.next_halving.days)}
       ]}/>
       <Card title={"Node"} items={[
@@ -130,7 +173,8 @@ export default async function Cards({summary}) {
         /* Electrum server is an example of a not publicly routable node */
         {"Not publicly routable": formatPeers(summary.peers.not_publicly_routable)}
       ]}/>
-      <Card title={"Top versions"} items={summary.sub_versions.slice(0, 4).map(sv => {
+      <Card title={"Top versions"} items={
+        summary.sub_versions.filter(sv => !sv[0].startsWith("/electrs")).slice(0, 4).map(sv => {
           let o = {}
           o[sv[0]] = formatPeers(sv[1])
           return o
