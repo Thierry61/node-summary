@@ -71,7 +71,7 @@ function formatPercent(percent) {
 // Format seconds in HH:MM:SS format with HH part omitted if less than 3600 seconds
 function formatSeconds(totalSeconds) {
   const absoluteSeconds = Math.abs(totalSeconds)
-  const sign = absoluteSeconds >= 0 ? '' : '-'
+  const sign = totalSeconds >= 0 ? '' : '-'
   const hours = Math.floor(absoluteSeconds / 3600)
   let seconds = absoluteSeconds % 3600
   const minutes = Math.floor(seconds / 60)
