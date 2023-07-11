@@ -40,7 +40,8 @@ export default async function Card({title, items}) {
                 // if value is an array then unit is second element of array (in jsx format), otherwise there is no unit
                 const unit = Array.isArray(valUnit) ? valUnit[1] : emptyCell
                 return (
-                  <div key={index} className="w-13 text-gray-400">
+                  // 52px would be w-13
+                  <div key={index} className="w-[52px] text-gray-400">
                     {unit}
                   </div>
                 )
