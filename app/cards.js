@@ -108,7 +108,7 @@ function formatBlocks(val) {
 }
 
 function formatRetargets(val) {
-  return [val, "adjust."]
+  return [val, "retarget" + s(val)]
 }
 
 // TXN is abbreviation for transactions (https://en.wikipedia.org/wiki/TXN#:~:text=TXN%2C%20abbreviation%20for%20transaction%20(disambiguation))
@@ -121,8 +121,9 @@ function formatPeers(val) {
 }
 
 function formatEpoch(epoch) {
-  const digit = epoch % 10;
-  const ord = digit == 1 ? 'st' : digit == 2 ? 'nd' : digit == 3 ? 'rd' : 'th'
+  const digit = epoch % 10
+  const tens = Math.floor(epoch / 10) % 10
+  const ord = (digit == 1 && tens != 1) ? 'st' : (digit == 2 && tens != 1) ? 'nd' : (digit == 3 && tens != 1) ? 'rd' : 'th'
   return [epoch, <div key="1"><sup>{ord}</sup> epoch</div>]
 }
 
@@ -135,7 +136,7 @@ export default async function Cards({summary}) {
         {"Halving epoch": formatEpoch(summary.halving_epoch)}
       ]}/>
       <Card title={"Recommended fees"} items={[
-        {"Immediate": formatFee(summary.feerates["1"])},
+        {"ASAP": formatFee(summary.feerates["1"])},
         {"1 hour": formatFee(summary.feerates["6"])},
         {"1 day": formatFee(summary.feerates["144"])}
       ]}/>
@@ -150,14 +151,14 @@ export default async function Cards({summary}) {
         {"Elapsed time": formatSeconds(summary.time_since_last_bloc)}
       ]}/>
       <Card title={"Next retarget"} items={[
-        {"Remaining blocks": formatBlocks(summary.next_retarget.blocks)},
+        {"Blocks to do": formatBlocks(summary.next_retarget.blocks)},
         {"Estim. adjustment": formatPercent(summary.next_retarget.estimated_diff_adj_percent)},
         {"Last adjustment": formatPercent(summary.prev_diff_adj_percent)},
         {"Estimated delay": formatDays(summary.next_retarget.days)},
       ]}/>
       <Card title={"Next halving"} items={[
-        {"Remaining blocks": formatBlocks(summary.next_halving.blocks)},
-        {"Remaining adjust": formatRetargets(summary.next_halving.retargets)},
+        {"Blocks to do": formatBlocks(summary.next_halving.blocks)},
+        {"Retargets to do": formatRetargets(summary.next_halving.retargets)},
         {"Estimated delay": formatDays(summary.next_halving.days)}
       ]}/>
       <Card title={"Node"} items={[
@@ -166,7 +167,7 @@ export default async function Cards({summary}) {
         {"Download": formatSize(summary.totalbytesrecv)},
         {"Data size": formatSize(summary.size_on_disk)}
       ]}/>
-      <Card title={`${summary.peers.total} peers`} items={[
+      <Card title={`Peers (${summary.peers.total})`} items={[
         {"IPv4": formatPeers(summary.peers.ipv4)},
         {"IPv6": formatPeers(summary.peers.ipv6)},
         {"Onion": formatPeers(summary.peers.onion)},
