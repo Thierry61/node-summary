@@ -1,6 +1,6 @@
 import { loadSummary } from '../lib/load-summary'
 import Cards from './cards'
-import Err from './Err'
+import Err from './err'
 
 export default async function PeriodicComponent() {
   const summary = await loadSummary()
