@@ -8,7 +8,7 @@ export default async function PeriodicComponent() {
   return (
     <main className="mx-2 mb-2">
       {
-        err == undefined ? <Cards summary={summary} /> : <Err err={err} date={summary.date} />
+        err == undefined ? <Cards summary={summary} /> : <Err err={err} date={summary.server_time} />
       }
     </main>
   )
