@@ -12,6 +12,7 @@ Note: Any mention of 192.168.110.121 throughout the document should be replaced 
 
 Adapt .env file at the root:
   - redefine BITCOIND_COOKIE_PATH to point to your bitcoin node `.cookie` file
+  - alternatively set BITCOIND_USERNAME and BITCOIND_PASSWORD environment variables instead of BITCOIND_COOKIE_PATH
   - set BITCOIND_PORT to your bitcoin RPC port.
 
 Install the dependencies:
@@ -28,12 +29,23 @@ Open [http://localhost:3003](http://localhost:3003) with your browser to see the
 
 ## Deployment
 
+If configuration is different from development, then create a `.env.production.local` file to adapt environment variables. If this file contains secrets don't publish it to GitHub (default NextJs generated configuration exclude it in .gitignore file). Example of such a file:
+```ini
+# New environment variables
+BITCOIND_USERNAME="<redacted>"
+BITCOIND_PASSWORD="<redacted>"
+# Erase BITCOIND_COOKIE_PATH defined in .env file
+BITCOIND_COOKIE_PATH=
+# Overwrite BITCOIND_HOST defined in .env file
+BITCOIND_HOST="192.168.110.121"
+```
+
 Build the web app with:
 ```bash
 npm run build
 ```
 
-Redefine `-H` option in `start` command of package.json to correspond to your exposed address (mine is `192.168.110.121` in my WireGuard VPN).
+Redefine `-H` option in `start` command of package.json to correspond to NextJs app exposed address. This address can be different from bitcoind host.
 
 Allow 3003 port in your firewall. For UFW the command is `sudo ufw allow from 192.168.110.0/24 to any port 3003 proto tcp` (this is my VPN cidr)
 

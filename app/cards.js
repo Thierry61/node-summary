@@ -151,14 +151,14 @@ export default async function Cards({summary}) {
         {"Elapsed time": formatSeconds(summary.time_since_last_bloc)}
       ]}/>
       <Card title={"Next retarget"} items={[
-        {"Blocks to do": formatBlocks(summary.next_retarget.blocks)},
+        {"Blocks left": formatBlocks(summary.next_retarget.blocks)},
         {"Estim. adjustment": formatPercent(summary.next_retarget.estimated_diff_adj_percent)},
         {"Last adjustment": formatPercent(summary.prev_diff_adj_percent)},
         {"Estimated delay": formatDays(summary.next_retarget.days)},
       ]}/>
       <Card title={"Next halving"} items={[
-        {"Blocks to do": formatBlocks(summary.next_halving.blocks)},
-        {"Retargets to do": formatRetargets(summary.next_halving.retargets)},
+        {"Blocks left": formatBlocks(summary.next_halving.blocks)},
+        {"Retargets left": formatRetargets(summary.next_halving.retargets)},
         {"Estimated delay": formatDays(summary.next_halving.days)}
       ]}/>
       <Card title={"Node"} items={[
