@@ -2,7 +2,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 The Web App displays summary information about a Bitcoin Core node. It must be run directly on the same machine as the node and the node must be accessible with credentials in `.cookie` file.
 
-The app has one web page (/) and one API entry point (/api/summary). The web page is automatically refreshed every 5 secondes. The refresh rate can be changed with REVALIDATE parameter in .env file. To not burden the bitcoin RPC, the API is cached and REVALIDATE parameter is also the API cache duration.
+The app has one web page (/) and one main API entry point (/api/summary). The web page is automatically refreshed every 5 secondes. The refresh rate can be changed with REVALIDATE parameter in .env file. To not burden the bitcoin RPC, the API is cached and REVALIDATE parameter is also the API cache duration. There is also a health check API entry point (/api/health) that returns either 200 OK or 503 Service Unavailable.
 
 The information is divided in a set of cards spread on a grid. The grid uses Tailwind breakpoint prefixes and grid template columns so that the layout is responsive to the dynamic screen size and orientation.
 
@@ -29,7 +29,7 @@ Open [http://localhost:3003](http://localhost:3003) with your browser to see the
 
 ## Deployment
 
-If configuration is different from development, then create a `.env.production.local` file to adapt environment variables. If this file contains secrets don't publish it to GitHub (default NextJs generated configuration exclude it in .gitignore file). Example of such a file:
+If configuration is different from development, then create a `.env.production.local` file to adapt environment variables. If this file contains secrets don't publish it to GitHub (default NextJS generated configuration exclude it in .gitignore file). Example of such a file:
 ```ini
 # New environment variables
 BITCOIND_USERNAME="<redacted>"
@@ -45,7 +45,7 @@ Build the web app with:
 npm run build
 ```
 
-Redefine `-H` option in `start` command of package.json to correspond to NextJs app exposed address. This address can be different from bitcoind host.
+Redefine `-H` option in `start` command of package.json to correspond to NextJS app exposed address. This address can be different from bitcoind host.
 
 Allow 3003 port in your firewall. For UFW the command is `sudo ufw allow from 192.168.110.0/24 to any port 3003 proto tcp` (this is my VPN cidr)
 
