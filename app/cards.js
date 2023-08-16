@@ -96,7 +96,7 @@ function formatBitcoinAmount(amount) {
 }
 
 function formatFee(fee) {
-  return [fee, "sats/vB"]
+  return [digitPrecision(fee), "sats/vB"]
 }
 
 function formatRate(rate) {
