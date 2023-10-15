@@ -1,6 +1,6 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-The Web App displays summary information about a Bitcoin Core node. It must be run directly on the same machine as the node and the node must be accessible with credentials in `.cookie` file.
+The Web App displays summary information about a Bitcoin Core node. It exclusively uses the bitcoin RPC API to get this information.
 
 The app has one web page (/) and one main API entry point (/api/summary). The web page is automatically refreshed every 5 secondes. The refresh rate can be changed with REVALIDATE parameter in .env file. To not burden the bitcoin RPC, the API is cached and REVALIDATE parameter is also the API cache duration. There is also a health check API entry point (/api/health) that returns either 200 OK or 503 Service Unavailable.
 
@@ -11,9 +11,13 @@ Note: Any mention of 192.168.110.121 throughout the document should be replaced 
 ## Development
 
 Adapt .env file at the root:
-  - redefine BITCOIND_COOKIE_PATH to point to your bitcoin node `.cookie` file
-  - alternatively set BITCOIND_USERNAME and BITCOIND_PASSWORD environment variables instead of BITCOIND_COOKIE_PATH
-  - set BITCOIND_PORT to your bitcoin RPC port.
+  - set REVALIDATE to the desired refresh rate value (in seconds)
+  - set BITCOIND_HOST to your bitcoin RPC host (including the scheme)
+  - set BITCOIND_PORT to your bitcoin RPC port
+  - use one of 3 authentication methods:
+    - define BITCOIND_COOKIE_PATH to point to your bitcoin node `.cookie` file (when server is run directly on the same machine as the node)
+    - set BITCOIND_USERNAME and BITCOIND_PASSWORD environment variables
+    - don't set any of BITCOIND_COOKIE_PATH, BITCOIND_USERNAME and BITCOIND_PASSWORD environment variables for an unauthenticated server (like https://bitcoin-mainnet-archive.allthatnode.com:443 for example)
 
 Install the dependencies:
 ```bash
@@ -37,7 +41,7 @@ BITCOIND_PASSWORD="<redacted>"
 # Erase BITCOIND_COOKIE_PATH defined in .env file
 BITCOIND_COOKIE_PATH=
 # Overwrite BITCOIND_HOST defined in .env file
-BITCOIND_HOST="192.168.110.121"
+BITCOIND_HOST="http://192.168.110.121"
 ```
 
 Build the web app with:

@@ -7,7 +7,8 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation'
 
-export default async function ReloadPeriodicComponent({ refresh, children }) {
+// Note that client components cannot be async functions. See: https://nextjs.org/docs/messages/no-async-client-component
+export default function ReloadPeriodicComponent({ refresh, children }) {
   const router = useRouter()
 
   useEffect(() => {
