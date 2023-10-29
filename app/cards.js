@@ -62,6 +62,12 @@ function formatDays(days) {
   return [res, lastDuration.unit + s(res)]
 }
 
+// Format flow rate
+function formatThroughput(size, uptime) {
+  const res = Math.round(uptime <= 0 ? "" : size/uptime/3600/1000)
+  return [res, "KB/s"]
+}
+
 // Format percentage with 1 digit precision
 function formatPercent(percent) {
   let res = digitPrecision(percent)
@@ -164,8 +170,8 @@ export default async function Cards({summary}) {
       ]}/>
       <Card title={"Node"} items={[
         {"Uptime": formatDays(summary.uptime_days)},
-        {"Upload": formatSize(summary.totalbytessent)},
-        {"Download": formatSize(summary.totalbytesrecv)},
+        {"Upload": formatThroughput(summary.totalbytessent, summary.uptime_days)},
+        {"Download": formatThroughput(summary.totalbytesrecv, summary.uptime_days)},
         {"Data size": formatSize(summary.size_on_disk)}
       ]}/>
       <Card title={`Peers (${summary.peers.total})`} items={[

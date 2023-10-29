@@ -107,66 +107,59 @@ Get the logs with: `journalctl -S <hh:mm> -u node-summary -o cat -f`
 ```json
 {
   "feerates": {
-    "1": 22,
-    "6": 17,
-    "144": 11
+    "1": 9.692,
+    "6": 9.067,
+    "144": 2.278
   },
-  "uptime_days": 29.161,
-  "diff_epoch": 396,
+  "uptime_days": 0.7544,
+  "diff_epoch": 404,
   "halving_epoch": 4,
-  "blocks": 796706,
-  "headers": 796706,
-  "size_on_disk": 558921305562,
-  "totalbytesrecv": 22671844123,
-  "totalbytessent": 153581916331,
+  "blocks": 814381,
+  "headers": 814381,
+  "size_on_disk": 592556898040,
+  "totalbytesrecv": 373385512,
+  "totalbytessent": 1187651207,
   "peers": {
-    "total": 70,
-    "ipv4": 10,
+    "total": 35,
+    "ipv4": 4,
     "ipv6": 0,
-    "onion": 59,
+    "onion": 30,
     "not_publicly_routable": 1
   },
   "sub_versions": [
-    [ "/Satoshi:25.0.0/", 18 ],
-    [ "/Satoshi:24.0.1/", 17 ],
-    [ "/Satoshi:23.0.0/", 12 ],
-    [ "/Satoshi:22.0.0/", 4 ],
-    [ "/Satoshi:24.0.0/", 2 ],
-    [ "/Satoshi:0.21.0/", 2 ],
-    [ "/Satoshi:23.0.0/Knots:20220529/", 2 ],
-    [ "/bitcoinj:0.14.3/Bitcoin Wallet:4.58/", 2 ],
-    [ "/electrs:0.9.13/", 1 ],
+    [ "/Satoshi:25.0.0/", 11 ],
+    [ "/Satoshi:23.0.0/", 8 ],
+    [ "/Satoshi:24.0.1/", 6 ],
+    [ "/Satoshi:22.0.0/", 3 ],
+    [ "/Satoshi:22.0.0(FutureBit-Apollo-Node)/", 2 ],
+    [ "/electrs:0.10.0/", 1 ],
     [ "", 1 ],
-    [ "/Satoshi:24.0.1(Samourai Dojo 1.19.2)/", 1 ],
-    [ "/Satoshi:24.1.0/", 1 ],
-    [ "/btcwire:0.5.0/:/", 1 ],
-    [ "/Satoshi:23.0.0(RoninDojo 1.18.1)/", 1 ],
-    [ "/Satoshi:0.16.99/", 1 ],
-    [ "/bitcoinj:0.14.4/Bitcoin Wallet:5.26/", 1 ],
-    [ "/bitcoinj:0.14.5/Bitcoin Wallet:5.45/", 1 ],
-    [ "/Satoshi:0.15.0.1(No2X)/", 1 ],
-    [ "/breadwallet:0.6.8/", 1 ]
+    [ "/Satoshi:0.18.1/", 1 ],
+    [ "/Satoshi:0.21.1/", 1 ],
+    [ "/Satoshi:23.0.0/Knots:20220529/", 1 ]
   ],
   "template": {
-    "fees": 0.18190531,
-    "ntx": 2519
+    "fees": 0.19074448,
+    "ntx": 3555
   },
   "mempool": {
-    "fees": 4.05394828,
-    "ntx": 117648,
-    "ntx_per_second": 3.081
+    "fees": 1.16161923,
+    "ntx": 14881,
+    "ntx_per_second": 2.126
   },
-  "time_since_last_bloc": 408,
-  "prev_diff_adj_percent": -3.255,
+  "ntx": 910907438,
+  "server_time": 1698588894212,
+  "time_since_last_bloc": 2064,
+  "prev_diff_adj_percent": 6.47,
   "next_retarget": {
-    "blocks": 1630,
-    "days": 10.971,
-    "estimated_diff_adj_percent": 3.176
+    "blocks": 83,
+    "days": 0.562,
+    "estimated_diff_adj_percent": 2.558
   },
   "next_halving": {
-    "blocks": 43294,
-    "retargets": 21,
-    "days": 300.653
+    "blocks": 25619,
+    "retargets": 13,
+    "days": 177.9
   },
   "revalidate": "5"
 }
