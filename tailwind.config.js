@@ -8,8 +8,8 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        // 3 columns at 830px instead of 768px
-        'md': '830px',
+        // 3 columns at 870px instead of 768px
+        'md': '870px',
       },
     },
   },

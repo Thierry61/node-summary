@@ -123,6 +123,28 @@ function formatTransactions(val) {
 }
 
 function formatPeers(val) {
+  return [
+    <div key="2" className='flex justify-end gap-1'>
+      <div>{val.in}</div>
+      <div className='font-sans text-gray-400'>in</div>
+      <div>{val.out}</div>
+    </div>,
+    "out"
+  ]
+}
+
+function formatRewards(val) {
+  return [
+    <div key="2" className='flex justify-end gap-1'>
+      <div>{50/(1<<(val-1))}</div>
+      <span className='font-sans text-gray-400'>{'>'}</span>
+      <div>{50/(1<<val)}</div>
+    </div>,
+    "btc"
+  ]
+}
+
+function formatNodes(val) {
   return [val, "node" + s(val)]
 }
 
@@ -138,7 +160,8 @@ export default async function Cards({summary}) {
     <div className="text-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-1">
       <Card title={"Blockchain"} items={[
         {"Transactions": formatTransactions(summary.ntx)},
-        {"Block height": [summary.headers, "blocks-1"]},
+        // In reality block height is the number of blocks in the blockchain minus 1 (but who cares?)
+        {"Block height": [summary.headers, "blocks"]},
         {"Difficulty epoch": formatEpoch(summary.diff_epoch)},
         {"Halving epoch": formatEpoch(summary.halving_epoch)}
       ]}/>
@@ -150,7 +173,8 @@ export default async function Cards({summary}) {
       <Card title={"Mempool"} items={[
         {"Transactions": formatTransactions(summary.mempool.ntx)},
         {"Fees": formatBitcoinAmount(summary.mempool.fees)},
-        {"TPS": formatRate(summary.mempool.ntx_per_second)}
+        {"TPS (instant)": formatRate(summary.mempool.ntx_per_second)},
+        {"TPS (month avg)": formatRate(summary.ntx_per_second)}
       ]}/>
       <Card title={"Next block"} items={[
         {"Transactions": formatTransactions(summary.template.ntx)},
@@ -161,12 +185,14 @@ export default async function Cards({summary}) {
         {"Blocks left": formatBlocks(summary.next_retarget.blocks)},
         {"Estim. adjustment": formatPercent(summary.next_retarget.estimated_diff_adj_percent)},
         {"Last adjustment": formatPercent(summary.prev_diff_adj_percent)},
-        {"Estimated delay": formatDays(summary.next_retarget.days)},
+        {"Estim. delay": formatDays(summary.next_retarget.days)},
       ]}/>
       <Card title={"Next halving"} items={[
         {"Blocks left": formatBlocks(summary.next_halving.blocks)},
-        {"Retargets left": formatRetargets(summary.next_halving.retargets)},
-        {"Estimated delay": formatDays(summary.next_halving.days)}
+        {"Difficulty ret.": formatRetargets(summary.next_halving.retargets)},
+        {"Estim. delay": formatDays(summary.next_halving.days)},
+        // Should be good at md size up to halving epoch 6 included (until spring 2032)
+        {"Reward split": formatRewards(summary.halving_epoch)}
       ]}/>
       <Card title={"Node"} items={[
         {"Uptime": formatDays(summary.uptime_days)},
@@ -184,7 +210,11 @@ export default async function Cards({summary}) {
       <Card title={"Top versions"} items={
         summary.sub_versions.filter(sv => !sv[0].startsWith("/electrs")).slice(0, 4).map(sv => {
           let o = {}
-          o[sv[0]] = formatPeers(sv[1])
+          let agent = sv[0]
+          const maxLen = 23
+          if (agent.length > maxLen)
+            agent = agent.slice(0, maxLen-1) + "…"
+          o[agent] = formatNodes(sv[1])
           return o
         })}/>
     </div>
