@@ -107,31 +107,32 @@ Get the logs with: `journalctl -S <hh:mm> -u node-summary -o cat -f`
 ```json
 {
   "feerates": {
-    "1": 242.604,
-    "6": 220.123,
-    "144": 11.924
+    "1": 86.783,
+    "6": 79.047,
+    "36": 53.385,
+    "144": 36.146
   },
-  "uptime_days": 7.76,
-  "diff_epoch": 405,
+  "uptime_days": 10.97,
+  "diff_epoch": 406,
   "halving_epoch": 4,
-  "blocks": 816327,
-  "headers": 816327,
-  "size_on_disk": 596229529914,
-  "totalbytesrecv": 8004102468,
-  "totalbytessent": 881873911445,
+  "blocks": 816785,
+  "headers": 816785,
+  "size_on_disk": 597110617728,
+  "totalbytesrecv": 12748361747,
+  "totalbytessent": 1143800738038,
   "peers": {
     "total": 124,
     "ipv4": {
-      "in": 63,
-      "out": 4
+      "in": 71,
+      "out": 1
     },
     "ipv6": {
-      "in": 21,
-      "out": 0
+      "in": 18,
+      "out": 1
     },
     "onion": {
-      "in": 29,
-      "out": 6
+      "in": 24,
+      "out": 8
     },
     "not_publicly_routable": {
       "in": 1,
@@ -139,68 +140,61 @@ Get the logs with: `journalctl -S <hh:mm> -u node-summary -o cat -f`
     }
   },
   "sub_versions": [
-    [ "/Satoshi:25.0.0/", 21 ],
-    [ "/btcwire:0.5.0/Satoshi:25.0.0/", 16 ],
-    [ "/Satoshi:24.0.1/", 15 ],
-    [ "/Satoshi:25.1.0/", 14 ],
-    [ "/Satoshi:23.0.0/", 8 ],
+    [ "/Satoshi:25.0.0/", 31 ],
+    [ "/Satoshi:24.0.1/", 22 ],
+    [ "/Satoshi:25.1.0/", 16 ],
+    [ "/btcwire:0.5.0/Satoshi:25.0.0/", 8 ],
+    [ "/Satoshi:23.0.0/", 6 ],
     [ "/dsn.tm.kit.edu/bitcoin:0.9.99/", 5 ],
-    [ "/Satoshi:22.0.0/", 5 ],
-    [ "/Satoshi:25.99.0/", 3 ],
+    [ "/Satoshi:25.99.0/", 5 ],
+    [ "/Satoshi:22.0.0/", 4 ],
     [ "/bitnodes.io:0.3/", 2 ],
-    [ "/Satoshi:22.0.0(FutureBit-Apollo-Node)/", 2 ],
-    [ "/Satoshi:26.99.0/", 2 ],
     [ "/bitnodes.earn.com:0.1/", 2 ],
-    [ "/Satoshi:0.20.1/", 2 ],
-    [ "/Satoshi:0.16.0/", 2 ],
-    [ "/nodes.mom.market:0.2/", 2 ],
+    [ "", 2 ],
+    [ "/bitcoinj:0.16.1/", 2 ],
     [ "/electrs:0.10.0/", 1 ],
     [ "/seeder:0.0001/", 1 ],
+    [ "/Satoshi:26.99.0/", 1 ],
     [ "/Satoshi:0.14.0/", 1 ],
-    [ "", 1 ],
-    [ "/Satoshi:23.1.0/", 1 ],
-    [ "/Satoshi:24.1.0/", 1 ],
-    [ "/Satoshi:24.0.0/", 1 ],
-    [ "/Satoshi:0.19.0.1/", 1 ],
-    [ "/btcwire:0.5.0/bitcoinstats.com:0.2/", 1 ],
     [ "/Satoshi:0.16.1/", 1 ],
-    [ "/Satoshi:0.18.0/", 1 ],
-    [ "/bitcoinj:0.16.1/", 1 ],
+    [ "/Satoshi:0.21.0/", 1 ],
     [ "/Satoshi:25.0.0(RoninDojo 2.1.0)/", 1 ],
-    [ "/breadwallet:1.50/", 1 ],
-    [ "/Satoshi:0.7.0.3/", 1 ],
-    [ "/breadwallet:1.4/", 1 ],
-    [ "/BitCoinJ:0.11.2/MultiBit:0.5.18/", 1 ],
-    [ "/bitcoinj:0.14.3/Bitcoin Wallet:4.58.1-btcx/", 1 ],
-    [ "/bitcoinj:0.14.5/Bitcoin Wallet:5.42/", 1 ],
-    [ "/breadwallet:0.6.5/", 1 ],
-    [ "/breadwallet:1.3.5/", 1 ],
-    [ "/Satoshi:0.12.0/", 1 ],
-    [ "/bitcoinj:0.14.4/Bitcoin Wallet:5.22/", 1 ]
+    [ "/Satoshi:0.16.0/", 1 ],
+    [ "/Satoshi:23.0.0(RoninDojo 2.0.0)/", 1 ],
+    [ "/Satoshi:24.1.0/", 1 ],
+    [ "/Satoshi:0.21.1/", 1 ],
+    [ "/Satoshi:0.19.0.1/", 1 ],
+    [ "/Satoshi:0.17.0/", 1 ],
+    [ "/bitcoinj:0.15.1/", 1 ],
+    [ "/Satoshi:0.18.0/", 1 ],
+    [ "/bitcoinj:0.14.5/Bitcoin Wallet:5.35/", 1 ],
+    [ "/Satoshi:0.15.0/Knots:20170914/", 1 ],
+    [ "/bitcoinj:0.14.4/Bitcoin Wallet:5.30/", 1 ],
+    [ "/BitCoinJ:0.11.2/MultiBit:0.5.19/", 1 ]
   ],
   "template": {
-    "fees": 2.17614741,
-    "ntx": 4035
+    "fees": 0.99696513,
+    "ntx": 2772
   },
   "mempool": {
-    "fees": 14.11043283,
-    "ntx": 100548,
-    "ntx_per_second": 4.911
+    "fees": 14.51493784,
+    "ntx": 103584,
+    "ntx_per_second": 4.506
   },
-  "ntx": 917660966,
-  "ntx_per_second": 4.875,
-  "server_time": 1699722563156,
-  "time_since_last_bloc": 515,
-  "prev_diff_adj_percent": 2.348,
+  "ntx": 919454034,
+  "ntx_per_second": 5.222,
+  "server_time": 1699999628580,
+  "time_since_last_bloc": 963,
+  "prev_diff_adj_percent": 3.546,
   "next_retarget": {
-    "blocks": 153,
-    "days": 1.03,
-    "estimated_diff_adj_percent": 3.114
+    "blocks": 1711,
+    "days": 12.49,
+    "estimated_diff_adj_percent": -4.882
   },
   "next_halving": {
-    "blocks": 23673,
-    "retargets": 12,
-    "days": 164.4
+    "blocks": 23215,
+    "retargets": 11,
+    "days": 161.2
   },
   "revalidate": "5"
 }

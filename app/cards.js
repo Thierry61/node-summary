@@ -133,17 +133,6 @@ function formatPeers(val) {
   ]
 }
 
-function formatRewards(val) {
-  return [
-    <div key="2" className='flex justify-end gap-1'>
-      <div>{50/(1<<(val-1))}</div>
-      <span className='font-sans text-gray-400'>{'>'}</span>
-      <div>{50/(1<<val)}</div>
-    </div>,
-    "btc"
-  ]
-}
-
 function formatNodes(val) {
   return [val, "node" + s(val)]
 }
@@ -168,18 +157,20 @@ export default async function Cards({summary}) {
       <Card title={"Recommended fees"} items={[
         {"ASAP": formatFee(summary.feerates["1"])},
         {"1 hour": formatFee(summary.feerates["6"])},
+        {"6 hours": formatFee(summary.feerates["36"])},
         {"1 day": formatFee(summary.feerates["144"])}
       ]}/>
       <Card title={"Mempool"} items={[
         {"Transactions": formatTransactions(summary.mempool.ntx)},
         {"Fees": formatBitcoinAmount(summary.mempool.fees)},
-        {"TPS (instant)": formatRate(summary.mempool.ntx_per_second)},
-        {"TPS (month avg)": formatRate(summary.ntx_per_second)}
+        {"Instant TPS": formatRate(summary.mempool.ntx_per_second)},
+        {"Monthly TPS": formatRate(summary.ntx_per_second)}
       ]}/>
       <Card title={"Next block"} items={[
         {"Transactions": formatTransactions(summary.template.ntx)},
         {"Fees": formatBitcoinAmount(summary.template.fees)},
-        {"Elapsed time": formatSeconds(summary.time_since_last_bloc)}
+        {"Current reward": formatBitcoinAmount(50/(1<<(summary.halving_epoch-1)))},
+        {"Elapsed time": formatSeconds(summary.time_since_last_bloc)},
       ]}/>
       <Card title={"Next retarget"} items={[
         {"Blocks left": formatBlocks(summary.next_retarget.blocks)},
@@ -189,10 +180,9 @@ export default async function Cards({summary}) {
       ]}/>
       <Card title={"Next halving"} items={[
         {"Blocks left": formatBlocks(summary.next_halving.blocks)},
-        {"Difficulty ret.": formatRetargets(summary.next_halving.retargets)},
-        {"Estim. delay": formatDays(summary.next_halving.days)},
-        // Should be good at md size up to halving epoch 6 included (until spring 2032)
-        {"Reward split": formatRewards(summary.halving_epoch)}
+        {"Diff. retargets": formatRetargets(summary.next_halving.retargets)},
+        {"New reward": formatBitcoinAmount(50/(1<<summary.halving_epoch))},
+        {"Estim. delay": formatDays(summary.next_halving.days)}
       ]}/>
       <Card title={"Node"} items={[
         {"Uptime": formatDays(summary.uptime_days)},
