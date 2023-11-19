@@ -25,8 +25,9 @@ export default async function Card({title, items}) {
                 // For TPS the value itself may be undefined
                 const valUnit = Object.values(item)[0]
                 const val = Array.isArray(valUnit) ? valUnit[0] : valUnit ?? emptyCell
+                const emphasize = Array.isArray(valUnit) ? valUnit[2] : false
                 return (
-                  <div key={index} className="text-end font-mono">
+                  <div key={index} className={`text-end font-mono${emphasize ? " animate-update" : ""}`} >
                     {val}
                   </div>
                 )

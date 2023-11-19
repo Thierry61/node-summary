@@ -6,6 +6,7 @@ import { loadSummary } from '../../../lib/load-summary'
 
 export async function GET(_request) {
     const summary = await loadSummary()
+    delete summary.last_res
     // Note that an error doesn't generate a HTTP error status
     // but is displayed in a regular component instead
     return NextResponse.json(summary)

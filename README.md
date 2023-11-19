@@ -4,6 +4,8 @@ The Web App displays summary information about a Bitcoin Core node. It exclusive
 
 The app has one web page (/) and one main API entry point (/api/summary). The web page is automatically refreshed every 5 secondes. The refresh rate can be changed with REVALIDATE parameter in .env file. To not burden the bitcoin RPC, the API is cached and REVALIDATE parameter is also the API cache duration. There is also a health check API entry point (/api/health) that returns either 200 OK or 503 Service Unavailable.
 
+As there is no interactivity, the web page is still operational when javascript is disabled, including automatic refresh which is managed by http-equiv="refresh" meta tag.
+
 The information is divided in a set of cards spread on a grid. The grid uses Tailwind breakpoint prefixes and grid template columns so that the layout is responsive to the dynamic screen size and orientation.
 
 Note: Any mention of 192.168.110.121 throughout the document should be replaced by your own address of deployment.
