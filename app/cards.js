@@ -9,8 +9,8 @@ function digitPrecision(val) {
 }
 
 // Generates GB from byte size with 1 digit precision
-function formatSize(size) {
-  return [digitPrecision(size / 1E9),  "GB"]
+function cbSize(size) {
+  return [[digitPrecision(size / 1E9),  "GB"]]
 }
 
 // Generate plural s for value != 1
@@ -27,7 +27,7 @@ const durations = [
   { unit: "hour", days: 1/24 },
   { unit: "minute", days: 1/24/60 },
 ]
-function formatDays(days) {
+function cbDays(days) {
   // Note that last element is not iterated
   for (let i = 0; i < durations.length - 1; i++) {
     const hiDuration = durations[i]
@@ -44,16 +44,9 @@ function formatDays(days) {
       }
       // Don't display nul low value and return regular (value, unit) pair instead
       if (low == 0) {
-        return [hi, hiDuration.unit + s(hi)]
+        return [[hi, hiDuration.unit + s(hi)]]
       }
-      return [
-        <div key="2" className='flex justify-end gap-1'>
-          <div>{hi}</div>
-          <div className='font-sans text-gray-400'>{hiDuration.unit + s(hi)}</div>
-          <div>{low}</div>
-        </div>,
-        lowDuration.unit + s(low)
-      ]
+      return [[hi, hiDuration.unit + s(hi)], [low, lowDuration.unit + s(low)]]
     }
   }
   // Special case for last element (display minutes in regular (value, unit) pair format)
@@ -63,32 +56,20 @@ function formatDays(days) {
 }
 
 // Format flow rate
-function formatThroughput(summary, property) {
-  const uptime = summary.uptime_days
-  const size = summary[property]
+// Note: this callback has an additional argument
+function cbThroughput(size, uptime) {
   const res = Math.round(uptime <= 0 ? "" : size/uptime/3600/1000)
-  let update = true
-  if (summary.last_res) {
-    const last_uptime = summary.last_res.uptime_days
-    const last_size = summary.last_res[property]
-    const last_res = Math.round(uptime <= 0 ? "" : last_size/last_uptime/3600/1000)
-    update = res != last_res
-  }
-  return [res, "KB/s", update]
+  return [[res, "KB/s"]]
 }
 
 // Format percentage with 1 digit precision
-function formatPercent(summary, properties) {
-  const rounded_percent = digitPrecision(properties.reduce((acc, property) => acc[property], summary))
-  const rounded_last_percent = summary.last_res ?
-    digitPrecision(properties.reduce((acc, property) => acc[property], summary.last_res)) :
-    undefined
-  return [rounded_percent, "%", rounded_percent != rounded_last_percent]
+function cbPercent(val) {
+  const rounded_percent = digitPrecision(val)
+  return [[rounded_percent, "%"]]
 }
 
 // Format seconds in HH:MM:SS format with HH part omitted if less than 3600 seconds
-function formatSeconds(summary, property) {
-  const totalSeconds = summary[property]
+function cbSeconds(totalSeconds) {
   const absoluteSeconds = Math.abs(totalSeconds)
   const sign = totalSeconds >= 0 ? '' : '-'
   const hours = Math.floor(absoluteSeconds / 3600)
@@ -99,13 +80,11 @@ function formatSeconds(summary, property) {
     .filter((v, i) => v > 0 || i > 0)
     .map(v => v.toString().padStart(2, '0'))
     .join(':')
-  const last_totalSeconds = (summary.last_res ?? {})[property]
-  return [sign + res, hours > 0 ? "hh:mm:ss" : "mm:ss", totalSeconds != last_totalSeconds]
+  return [[sign + res, hours > 0 ? "hh:mm:ss" : "mm:ss"]]
 }
 
 // Format bitcoin amount to exactly 8 digits precision
-function formatBitcoinAmount(summary, property) {
-  const amount = summary[property].fees
+function cbBitcoinAmount(amount) {
   let res = amount.toString()
   let dotPosition = res.indexOf('.')
   if (dotPosition == -1) {
@@ -113,134 +92,149 @@ function formatBitcoinAmount(summary, property) {
     dotPosition = res.length - 1
   }
   res = res.padEnd(dotPosition + 8 + 1, '0')
-  const last_amount = summary.last_res ? summary.last_res[property].fees : undefined
-  return [res, "btc", amount != last_amount]
+  return [[res, "btc"]]
 }
 
 // Same without 0 padding
-// Don't detect if value has changed since this happens once every 4 years
-function formatReward(summary, delta) {
-  let epoch = summary.halving_epoch + delta
+// Note: this callback has an additional argument
+function cbReward(current_epoch, delta) {
+  let epoch = current_epoch + delta
+  // TODO: Improve this before 2040! (next halving new reward field with more than 8 digits)
   let reward = 50/(1<<epoch)
-  return [reward, "btc"]
+  return [[reward, "btc"]]
 }
 
-function formatFee(summary, blocks) {
-  const fee = summary.feerates[blocks]
+function cbFee(fee) {
   const rounded_fee = digitPrecision(fee)
-  const rounded_last_fee = summary.last_res ? digitPrecision(summary.last_res.feerates[blocks]) : undefined
-  return [rounded_fee, "sats/vB", rounded_fee != rounded_last_fee]
+  return [[rounded_fee, "sats/vB"]]
 }
 
-function formatTPS(summary, optional_property) {
-  const parent = optional_property ? summary[optional_property] : summary
-  const rate = parent.ntx_per_second
-  if (rate == undefined)
-    return undefined
+function cbTPS(rate) {
   const rounded_rate = digitPrecision(rate)
-  const last_parent = summary.last_res ? optional_property ? summary.last_res[optional_property] : summary.last_res : {}
-  const last_rate = last_parent.ntx_per_second
-  const last_rounded_rate = last_rate == undefined ? undefined : digitPrecision(last_rate)
-  return [rounded_rate, "txns/s", rounded_rate != last_rounded_rate]
+  return [[rounded_rate, "txns/s"]]
 }
 
-function formatBlocks(summary, property) {
-  const val = summary[property].blocks
-  const last_val = summary.last_res ? summary.last_res[property].blocks : undefined
-  return [val, "block" + s(val), val != last_val]
+function cbBlocks(val) {
+  return [[val, "block" + s(val)]]
 }
 
-function formatRetargets(val) {
-  return [val, "retarget" + s(val)]
+function cbRetargets(val) {
+  return [[val, "retarget" + s(val)]]
 }
 
 // TXN is abbreviation for transactions (https://en.wikipedia.org/wiki/TXN#:~:text=TXN%2C%20abbreviation%20for%20transaction%20(disambiguation))
-function formatTransactions(summary, optional_property) {
-  const parent = optional_property ? summary[optional_property] : summary
-  const val = parent.ntx
-  const last_parent = summary.last_res ? optional_property ? summary.last_res[optional_property] : summary.last_res : {}
-  const last_val = last_parent.ntx
-  return [val, "txns", val != last_val]
+function cbTransactions(val) {
+  return [[val, "txns"]]
 }
 
-function formatPeers(summary, property) {
-  const val = summary.peers[property]
-  const last_val = summary.last_res ? summary.last_res.peers[property] : {}
-  return [
-    <div key="2" className='flex justify-end gap-1'>
-      <div className={val.in != last_val.in ? "animate-update" : ""}>{val.in}</div>
-      <div className='font-sans text-gray-400'>in</div>
-      <div className={val.out != last_val.out ? "animate-update" : ""}>{val.out}</div>
-    </div>,
-    "out"
-  ]
+function cbPeers(val) {
+  return [[val.in, "in"], [val.out, "out"]]
 }
 
-function formatNodes(val) {
-  return [val, "node" + s(val)]
+function cbNodes(val) {
+  return [[val, "node" + s(val)]]
 }
 
-function formatEpoch(summary, property) {
-  const epoch = summary[property]
+function cbEpoch(epoch) {
   const digit = epoch % 10
   const tens = Math.floor(epoch / 10) % 10
   const ord = (digit == 1 && tens != 1) ? 'st' : (digit == 2 && tens != 1) ? 'nd' : (digit == 3 && tens != 1) ? 'rd' : 'th'
-  const last_epoch = (summary.last_res ?? {})[property]
-  return [epoch, <div key="1"><sup>{ord}</sup> epoch</div>, epoch != last_epoch]
+  return [[epoch, <div key="1"><sup>{ord}</sup> epoch</div>]]
+}
+
+// Function computing any displayed properties. They are computed twice:
+// - once with current values
+// - once with previous values (about 5 seconds ago)
+// and then they are compared to derive a modified flag used to trigger an animation.
+// Function takes as inputs:
+// - callback function that computes an array of [value, unit] pairs
+// - summary variable (json data)
+// - array of properties to traverse to get the data
+// - optional additional argument for callback
+// It returns an array of [value, unit, modified] triplets.
+function format(cb, summary, properties, optional_arg) {
+  // Compute current array of [value, unit] pairs
+  const val = properties.reduce((acc, property) => acc[property], summary)
+  // Handles undefined instant TPS at startup
+  if (val == undefined) {
+    return [[undefined, undefined, false]]
+  }
+  const val_unit_pairs = cb(val, optional_arg)
+  // Values are considered modified if there are no previous data
+  if (! summary.last_res) {
+    return val_unit_pairs.map((vu) => vu.concat(true))
+  }
+  // Compute previous array of [value, unit] pairs
+  const last_val = properties.reduce((acc, property) => acc[property], summary.last_res)
+  // Values are considered modified if previous value is undefined
+  if (last_val == undefined) {
+    return val_unit_pairs.map((vu) => vu.concat(true))
+  }
+  const last_val_unit_pairs = cb(last_val, optional_arg)
+  // Values are considered modified if array length changes
+  let modified = val_unit_pairs.length != last_val_unit_pairs.length
+  return val_unit_pairs.map((vu, i) => {
+    // Current value (and subsequent ones) is considered modified if it changes or its unit changes
+    // Note that toString() is needed to managed units in jsx format
+    modified = modified || vu[0] != last_val_unit_pairs[i][0] || vu[1].toString() != last_val_unit_pairs[i][1].toString()
+    return vu.concat(modified)
+  })
 }
 
 export default async function Cards({summary}) {
   return (
     <div className="text-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-1">
       <Card title={"Blockchain"} items={[
-        {"Transactions": formatTransactions(summary)},
+        {"Transactions": format(cbTransactions, summary, ["ntx"])},
         // In reality block height is the number of blocks in the blockchain minus 1 (but who cares?)
-        {"Block height": [summary.headers, "blocks", summary.headers != (summary.last_res ?? {}).headers]},
-        {"Difficulty epoch": formatEpoch(summary, "diff_epoch")},
-        {"Halving epoch": formatEpoch(summary, "halving_epoch")},
+        {"Block height": format(cbBlocks, summary, ["headers"])},
+        {"Difficulty epoch": format(cbEpoch, summary, ["diff_epoch"])},
+        {"Halving epoch": format(cbEpoch, summary, ["halving_epoch"])},
       ]}/>
       <Card title={"Recommended fees"} items={[
-        {"ASAP": formatFee(summary, "1")},
-        {"1 hour": formatFee(summary, "6")},
-        {"6 hours": formatFee(summary, "36")},
-        {"1 day": formatFee(summary, "144")},
+        {"ASAP": format(cbFee, summary, ["feerates", "1"])},
+        {"1 hour": format(cbFee, summary, ["feerates", "6"])},
+        {"6 hours": format(cbFee, summary, ["feerates", "36"])},
+        {"1 day": format(cbFee, summary, ["feerates", "144"])},
       ]}/>
       <Card title={"Mempool"} items={[
-        {"Transactions": formatTransactions(summary, "mempool")},
-        {"Fees": formatBitcoinAmount(summary, "mempool")},
-        {"Instant TPS": formatTPS(summary, "mempool")},
-        {"Monthly TPS": formatTPS(summary)},
+        {"Transactions": format(cbTransactions, summary, ["mempool", "ntx"])},
+        {"Fees": format(cbBitcoinAmount, summary, ["mempool", "fees"])},
+        {"Instant TPS": format(cbTPS, summary, ["mempool", "ntx_per_second"])},
+        {"Monthly TPS": format(cbTPS, summary, ["ntx_per_second"])},
       ]}/>
       <Card title={"Next block"} items={[
-        {"Transactions": formatTransactions(summary, "template")},
-        {"Fees": formatBitcoinAmount(summary, "template")},
-        {"Current reward": formatReward(summary, -1)},
-        {"Elapsed time": formatSeconds(summary, "time_since_last_bloc")},
+        {"Transactions": format(cbTransactions, summary, ["template", "ntx"])},
+        {"Fees": format(cbBitcoinAmount, summary, ["template", "fees"])},
+        {"Reward": format(cbReward, summary, ["halving_epoch"], -1)},
+        {"Elapsed time": format(cbSeconds, summary, ["time_since_last_bloc"])},
       ]}/>
       <Card title={"Next retarget"} items={[
-        {"Blocks left": formatBlocks(summary, "next_retarget")},
-        {"Estim. adjustment": formatPercent(summary, ["next_retarget", "estimated_diff_adj_percent"])},
-        {"Last adjustment": formatPercent(summary, ["prev_diff_adj_percent"])},
-        {"Estim. delay": formatDays(summary.next_retarget.days)},
+        {"Blocks left": format(cbBlocks, summary, ["next_retarget", "blocks"])},
+        {"Estim. adjustment": format(cbPercent, summary, ["next_retarget", "estimated_diff_adj_percent"])},
+        {"Last adjustment": format(cbPercent, summary, ["prev_diff_adj_percent"])},
+        {"Estim. delay": format(cbDays, summary, ["next_retarget", "days"])},
       ]}/>
       <Card title={"Next halving"} items={[
-        {"Blocks left": formatBlocks(summary, "next_halving")},
-        {"Diff. retargets": formatRetargets(summary.next_halving.retargets)},
-        {"New reward": formatReward(summary, 0)},
-        {"Estim. delay": formatDays(summary.next_halving.days)},
+        {"Blocks left": format(cbBlocks, summary, ["next_halving", "blocks"])},
+        {"Diff. retargets": format(cbRetargets, summary, ["next_halving", "retargets"])},
+        {"New reward": format(cbReward, summary, ["halving_epoch"], 0)},
+        {"Estim. delay": format(cbDays, summary, ["next_halving", "days"])},
       ]}/>
       <Card title={"Node"} items={[
-        {"Uptime": formatDays(summary.uptime_days)},
-        {"Upload": formatThroughput(summary, "totalbytessent")},
-        {"Download": formatThroughput(summary, "totalbytesrecv")},
-        {"Data size": formatSize(summary.size_on_disk)},
+        {"Uptime": format(cbDays, summary, ["uptime_days"])},
+        // Note that there is a very small error when computing modified flag because summary.uptime_days is used for both current and previous values
+        // (but to put this on perspective after one hour uptime error is only 5/3600 = 0.14% and error decreases more and more when time passes)
+        {"Upload": format(cbThroughput, summary, ["totalbytessent"], summary.uptime_days)},
+        {"Download": format(cbThroughput, summary, ["totalbytesrecv"], summary.uptime_days)},
+        {"Data size": format(cbSize, summary, ["size_on_disk"])},
       ]}/>
       <Card title={`Peers (${summary.peers.total})`} items={[
-        {"IPv4": formatPeers(summary, "ipv4")},
-        {"IPv6": formatPeers(summary, "ipv6")},
-        {"Onion": formatPeers(summary, "onion")},
+        {"IPv4": format(cbPeers, summary, ["peers", "ipv4"])},
+        {"IPv6": format(cbPeers, summary, ["peers", "ipv6"])},
+        {"Onion": format(cbPeers, summary, ["peers", "onion"])},
         /* Electrum server is an example of a not publicly routable node */
-        {"Not publicly routable": formatPeers(summary, "not_publicly_routable")}
+        {"Not publicly routable": format(cbPeers, summary, ["peers", "not_publicly_routable"])},
       ]}/>
       <Card title={"Top versions"} items={
         summary.sub_versions.filter(sv => !sv[0].startsWith("/electrs")).slice(0, 4).map(sv => {
@@ -249,7 +243,9 @@ export default async function Cards({summary}) {
           const maxLen = 23
           if (agent.length > maxLen)
             agent = agent.slice(0, maxLen-1) + "…"
-          o[agent] = formatNodes(sv[1])
+          // TODO: take into account version ordering change to compute a modified flag on item titles
+          o[agent] = cbNodes(sv[1])
+          o[agent][0].push(false)
           return o
         })}/>
     </div>
