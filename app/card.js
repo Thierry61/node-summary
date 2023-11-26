@@ -8,14 +8,19 @@ export default async function Card({title, items}) {
       </div>
       <div className="flex justify-between">
         <div>
-          {items.map((item, index) => (
-            <div key={index} className="">
-              {
-                // Label is the key followed by : character
-                Object.keys(item)[0]
-              }:
-            </div>
-          ))}
+          {items.map((item, index) =>
+            {
+              const emphasize = Object.values(item)[0].m
+              return (
+                <div key={index} className={`${emphasize ? " animate-update" : ""}`}>
+                  {
+                    // Label is the key followed by : character
+                    Object.keys(item)[0]
+                  }:
+                </div>
+              )
+            }
+          )}
         </div>
         <div className="flex justify-end gap-1">
           <div>
@@ -23,10 +28,10 @@ export default async function Card({title, items}) {
               // Emit single value or first value + first unit + second value (the last unit is emitted in a separate column)
               items.map((item, index) => {
                 // Get last value with its modified flag
-                const values = Object.values(item)[0]
+                const values = Object.values(item)[0].items
                 const valUnit2 = values.slice(-1)[0]
-                const val2 = valUnit2[0] ?? emptyCell
-                const emphasize2 = valUnit2[2]
+                const val2 = valUnit2.v ?? emptyCell
+                const emphasize2 = valUnit2.m
                 // Emit single value
                 if (values.length == 1) {
                   return (
@@ -37,9 +42,9 @@ export default async function Card({title, items}) {
                 }
                 // Get first value with its unit and modified flag
                 const valUnit1 = values[0]
-                const val1 = valUnit1[0] ?? emptyCell
-                const unit1 = valUnit1[1]
-                const emphasize1 = valUnit1[2]
+                const val1 = valUnit1.v ?? emptyCell
+                const unit1 = valUnit1.u
+                const emphasize1 = valUnit1.m
                 // Emit first value + first unit + second value
                 return (
                   <div key="{index}" className='flex justify-end gap-1'>
@@ -61,10 +66,10 @@ export default async function Card({title, items}) {
             {
               // Unit of last element is special because it is aligned on a column
               items.map((item, index) => {
-                const values = Object.values(item)[0]
+                const values = Object.values(item)[0].items
                 const valUnit2 = values.slice(-1)[0]
                 // Unit is a string, a jsx data (with superscript for epoch) or undefined (changed to empty cell)
-                const unit2 = valUnit2[1] ?? emptyCell
+                const unit2 = valUnit2.u ?? emptyCell
                 return (
                   <div key={index} className="w-14 text-gray-400">
                     {unit2}

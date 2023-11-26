@@ -19,6 +19,7 @@ function s(val) {
 }
 
 // Format days. Use the 2 possible higher units of: years, months/weeks, days, hours, minutes
+// TODO: doesn't work below 1 hour
 const durations = [
   { unit: "year", days: 365.25 },
   { unit: "month", days: 365.25/12 },
@@ -151,37 +152,66 @@ function cbEpoch(epoch) {
 // - summary variable (json data)
 // - array of properties to traverse to get the data
 // - optional additional argument for callback
-// It returns an array of [value, unit, modified] triplets.
-function format(cb, summary, properties, optional_arg) {
+// It returns an array of {v: <value>, u: <unit>, m: <modified flag>} objects.
+function raw_format(cb, summary, properties, optional_arg) {
   // Compute current array of [value, unit] pairs
   const val = properties.reduce((acc, property) => acc[property], summary)
   // Handles undefined instant TPS at startup
   if (val == undefined) {
-    return [[undefined, undefined, false]]
+    return [{v: undefined, u: undefined, m: false}]
   }
   const val_unit_pairs = cb(val, optional_arg)
   // Values are considered modified if there are no previous data
   if (! summary.last_res) {
-    return val_unit_pairs.map((vu) => vu.concat(true))
+    return val_unit_pairs.map((vu) => ({v: vu[0], u: vu[1], m: true}))
   }
   // Compute previous array of [value, unit] pairs
   const last_val = properties.reduce((acc, property) => acc[property], summary.last_res)
   // Values are considered modified if previous value is undefined
   if (last_val == undefined) {
-    return val_unit_pairs.map((vu) => vu.concat(true))
+    return val_unit_pairs.map((vu) => ({v: vu[0], u: vu[1], m: true}))
   }
   const last_val_unit_pairs = cb(last_val, optional_arg)
   // Values are considered modified if array length changes
   let modified = val_unit_pairs.length != last_val_unit_pairs.length
   return val_unit_pairs.map((vu, i) => {
-    // Current value (and subsequent ones) is considered modified if it changes or its unit changes
-    // Note that toString() is needed to managed units in jsx format
-    modified = modified || vu[0] != last_val_unit_pairs[i][0] || vu[1].toString() != last_val_unit_pairs[i][1].toString()
-    return vu.concat(modified)
+    // Current value is considered modified if it changes or its unit changes
+    // Note that toString() is needed to managed units in jsx format and also we need to manage possible undefined value
+    const myToString = v => v == undefined ? "" : v.toString()
+    const m = modified || vu[0] != last_val_unit_pairs[i][0] || myToString(vu[1]) != myToString(last_val_unit_pairs[i][1])
+    return {v: vu[0], u: vu[1], m}
   })
 }
 
+// Intermediate functions to insert a global modified flag indicating if the title itself is modified
+// (false by default, but needed for sub-versions when their ordering changes)
+function format_items(items, modified_flag) {
+  return {m: modified_flag, items}
+}
+function format(cb, summary, properties, optional_arg) {
+  const items = raw_format(cb, summary, properties, optional_arg)
+  return format_items(items, false)
+}
+
+// Computes 4 top sub-version strings
+function topVersions(summary) {
+  const ret = summary.sub_versions.filter(sv => !sv[0].startsWith("/electrs")).slice(0, 4).map((sv, index) => {
+    let o = {}
+    let agent = sv[0]
+    const maxLen = 23
+    if (agent.length > maxLen)
+      agent = agent.slice(0, maxLen-1) + "…"
+    let items = cbNodes(sv[1])
+    items = [{v: items[0][0], u: items[0][1], m: false}]
+    o[agent] = items
+    return o
+  })
+  return ret
+}
+
 export default async function Cards({summary}) {
+  // Pre-compute 4 top previous versions
+  const prev_sv_items = !summary.last_res ? undefined : topVersions(summary.last_res)
   return (
     <div className="text-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-1">
       <Card title={"Blockchain"} items={[
@@ -237,15 +267,15 @@ export default async function Cards({summary}) {
         {"Not publicly routable": format(cbPeers, summary, ["peers", "not_publicly_routable"])},
       ]}/>
       <Card title={"Top versions"} items={
-        summary.sub_versions.filter(sv => !sv[0].startsWith("/electrs")).slice(0, 4).map(sv => {
+        topVersions(summary).map((sv, index) => {
           let o = {}
-          let agent = sv[0]
-          const maxLen = 23
-          if (agent.length > maxLen)
-            agent = agent.slice(0, maxLen-1) + "…"
-          // TODO: take into account version ordering change to compute a modified flag on item titles
-          o[agent] = cbNodes(sv[1])
-          o[agent][0].push(false)
+          let items = Object.values(sv)[0]
+          // Compare with previous value at same index
+          items[0].m = !prev_sv_items ? true : Object.values(prev_sv_items[index])[0][0].v != items[0].v
+          // Take into account version ordering change to compute modified flag on item titles
+          let agent = Object.keys(sv)[0]
+          const modified_title = !prev_sv_items ? true : agent != Object.keys(prev_sv_items[index])[0]
+          o[agent] = format_items(items, modified_title)
           return o
         })}/>
     </div>

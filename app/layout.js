@@ -14,7 +14,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <meta http-equiv="refresh" content={`${process.env.REVALIDATE}`} />
+        <meta httpEquiv="refresh" content={`${process.env.REVALIDATE}`} />
       </head>
       <body>
         <Header/>
