@@ -19,7 +19,6 @@ function s(val) {
 }
 
 // Format days. Use the 2 possible higher units of: years, months/weeks, days, hours, minutes
-// TODO: doesn't work below 1 hour
 const durations = [
   { unit: "year", days: 365.25 },
   { unit: "month", days: 365.25/12 },
@@ -53,7 +52,7 @@ function cbDays(days) {
   // Special case for last element (display minutes in regular (value, unit) pair format)
   const lastDuration = durations[durations.length - 1]
   let res = Math.round(days / lastDuration.days)
-  return [res, lastDuration.unit + s(res)]
+  return [[res, lastDuration.unit + s(res)]]
 }
 
 // Format flow rate
