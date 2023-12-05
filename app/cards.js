@@ -92,16 +92,24 @@ function cbBitcoinAmount(amount) {
     dotPosition = res.length - 1
   }
   res = res.padEnd(dotPosition + 8 + 1, '0')
-  return [[res, "btc"]]
+  // Display regular 5 digits + dimmed last 3 digits (note that ledger or kraken display only the 5 digits)
+  const splitPosition = res.length - 3
+  return [[
+    <>
+      <span>{res.substring(0, splitPosition)}</span>
+      <span className="text-gray-400">{res.substring(splitPosition)}</span>
+    </>,
+    "btc"
+  ]]
 }
 
-// Same without 0 padding
+// Compute reward from halving epoch
 // Note: this callback has an additional argument
 function cbReward(current_epoch, delta) {
   let epoch = current_epoch + delta
   // TODO: Improve this before 2040! (next halving new reward field with more than 8 digits)
   let reward = 50/(1<<epoch)
-  return [[reward, "btc"]]
+  return cbBitcoinAmount(reward)
 }
 
 function cbFee(fee) {
@@ -175,9 +183,9 @@ function raw_format(cb, summary, properties, optional_arg) {
   let modified = val_unit_pairs.length != last_val_unit_pairs.length
   return val_unit_pairs.map((vu, i) => {
     // Current value is considered modified if it changes or its unit changes
-    // Note that toString() is needed to managed units in jsx format and also we need to manage possible undefined value
+    // Note that toString() is needed to managed values and units in jsx format (btc amount and ordinal epoch numbers) and also we need to manage possible undefined value
     const myToString = v => v == undefined ? "" : v.toString()
-    const m = modified || vu[0] != last_val_unit_pairs[i][0] || myToString(vu[1]) != myToString(last_val_unit_pairs[i][1])
+    const m = modified || myToString(vu[0]) != myToString(last_val_unit_pairs[i][0]) || myToString(vu[1]) != myToString(last_val_unit_pairs[i][1])
     return {v: vu[0], u: vu[1], m}
   })
 }
