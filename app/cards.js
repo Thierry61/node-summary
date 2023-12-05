@@ -1,3 +1,4 @@
+import React from 'react'
 import Card from './card'
 
 // Round to 1 digit precision and keep possible .0 at the end
@@ -183,8 +184,8 @@ function raw_format(cb, summary, properties, optional_arg) {
   let modified = val_unit_pairs.length != last_val_unit_pairs.length
   return val_unit_pairs.map((vu, i) => {
     // Current value is considered modified if it changes or its unit changes
-    // Note that toString() is needed to managed values and units in jsx format (btc amount and ordinal epoch numbers) and also we need to manage possible undefined value
-    const myToString = v => v == undefined ? "" : v.toString()
+    // Note that we need to manage values and units in jsx format (btc amount and ordinal epoch numbers) and also we need to manage possible undefined value
+    const myToString = v => v == undefined ? "" : React.isValidElement(v) ? JSON.stringify(v) : v.toString()
     const m = modified || myToString(vu[0]) != myToString(last_val_unit_pairs[i][0]) || myToString(vu[1]) != myToString(last_val_unit_pairs[i][1])
     return {v: vu[0], u: vu[1], m}
   })

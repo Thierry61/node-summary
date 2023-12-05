@@ -19,7 +19,7 @@ module.exports = {
       },
       animation: {
         // Little animation for a new value
-        update: 'blink 0.4s ease-in-out 3',
+        update: 'blink 0.4s ease-in-out 1',
       }
     },
   },
