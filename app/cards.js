@@ -58,8 +58,9 @@ function cbDays(days) {
 
 // Format flow rate
 // Note: this callback has an additional argument
-function cbThroughput(size, uptime) {
-  const res = Math.round(uptime <= 0 ? "" : size/uptime/3600/1000)
+function cbThroughput(size, uptimeDays) {
+  const uptimeSeconds = uptimeDays*24*3600
+  const res = Math.round(uptimeDays <= 0 ? "" : size/1000/uptimeSeconds)
   return [[res, "KB/s"]]
 }
 
