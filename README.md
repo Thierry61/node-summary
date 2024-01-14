@@ -75,7 +75,7 @@ After=bitcoind.service
 [Service]
 WorkingDirectory=/home/ubuntu0/Documents/node-summary/
 # We need both setting the path (for node) and prefixing executed program (for npm)
-ExecStart=bash -c "PATH=/home/ubuntu0/.nvm/versions/node/v18.14.2/bin:$PATH /home/ubuntu0/.nvm/versions/node/v18.14.2/bin/npm start"
+ExecStart=bash -c "PATH=/home/ubuntu0/.nvm/versions/node/v20.11.0/bin:$PATH /home/ubuntu0/.nvm/versions/node/v20.11.0/bin/npm start"
 User=ubuntu0
 Group=ubuntu0
 Type=simple
