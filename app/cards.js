@@ -165,7 +165,7 @@ function cbEpoch(epoch) {
 function raw_format(cb, summary, properties, optional_arg) {
   // Compute current array of [value, unit] pairs
   const val = properties.reduce((acc, property) => acc[property], summary)
-  // Handles undefined instant TPS at startup
+  // Handles undefined instant TPS and fees at startup
   if (val == undefined) {
     return [{v: undefined, u: undefined, m: false}]
   }
