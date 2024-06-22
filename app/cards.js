@@ -105,13 +105,13 @@ function cbBitcoinAmount(amount) {
   ]]
 }
 
-// Compute reward from halving epoch
+// Compute subsidy from halving epoch
 // Note: this callback has an additional argument
-function cbReward(current_epoch, delta) {
+function cbSubsidy(current_epoch, delta) {
   let epoch = current_epoch + delta
-  // TODO: Improve this before 2040! (next halving new reward field with more than 8 digits)
-  let reward = 50/(1<<epoch)
-  return cbBitcoinAmount(reward)
+  // TODO: Improve this before 2040! (next halving new subsidy field with more than 8 digits)
+  let subsidy = 50/(1<<epoch)
+  return cbBitcoinAmount(subsidy)
 }
 
 function cbFee(fee) {
@@ -226,7 +226,7 @@ export default async function Cards({summary}) {
       <Card title={"Blockchain"} items={[
         {"Transactions": format(cbTransactions, summary, ["ntx"])},
         // In reality block height is the number of blocks in the blockchain minus 1 (but who cares?)
-        {"Block height": format(cbBlocks, summary, ["headers"])},
+        {"Block height": format(cbBlocks, summary, ["blocks"])},
         {"Difficulty epoch": format(cbEpoch, summary, ["diff_epoch"])},
         {"Halving epoch": format(cbEpoch, summary, ["halving_epoch"])},
       ]}/>
@@ -245,7 +245,7 @@ export default async function Cards({summary}) {
       <Card title={"Next block"} items={[
         {"Transactions": format(cbTransactions, summary, ["template", "ntx"])},
         {"Fees": format(cbBitcoinAmount, summary, ["template", "fees"])},
-        {"Reward": format(cbReward, summary, ["halving_epoch"], -1)},
+        {"Subsidy": format(cbSubsidy, summary, ["halving_epoch"], -1)},
         {"Elapsed time": format(cbSeconds, summary, ["time_since_last_bloc"])},
       ]}/>
       <Card title={"Next retarget"} items={[
@@ -257,7 +257,7 @@ export default async function Cards({summary}) {
       <Card title={"Next halving"} items={[
         {"Blocks left": format(cbBlocks, summary, ["next_halving", "blocks"])},
         {"Diff. retargets": format(cbRetargets, summary, ["next_halving", "retargets"])},
-        {"New reward": format(cbReward, summary, ["halving_epoch"], 0)},
+        {"New subsidy": format(cbSubsidy, summary, ["halving_epoch"], 0)},
         {"Estim. delay": format(cbDays, summary, ["next_halving", "days"])},
       ]}/>
       <Card title={"Node"} items={[
