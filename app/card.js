@@ -2,7 +2,7 @@ const emptyCell = "\u00A0"
 
 export default async function Card({title, items}) {
   return (
-    <div className="px-2 py-1 bg-blue-100 rounded-lg">
+    <div className="px-2 py-1 bg-blue-50 dark:bg-blue-600 dark:text-white rounded-lg drop-shadow-md">
       <div className="font-bold">
         {title}:
       </div>

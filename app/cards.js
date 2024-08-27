@@ -222,7 +222,7 @@ export default async function Cards({summary}) {
   // Pre-compute 4 top previous versions
   const prev_sv_items = !summary.last_res ? undefined : topVersions(summary.last_res)
   return (
-    <div className="text-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-1">
+    <div className="text-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
       <Card title={"Blockchain"} items={[
         {"Transactions": format(cbTransactions, summary, ["ntx"])},
         // In reality block height is the number of blocks in the blockchain minus 1 (but who cares?)

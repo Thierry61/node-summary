@@ -1,3 +1,79 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+  Global style to invert color of an SVG image inside a label:
+  - I couldn't expressed this in className attribute
+  - I used filter because none of stroke-* fill-* text-* Tailwind colors work on an SVG image
+  Note that this also works in dark mode because button colors remain the same (black text on blue-100/200 background)
+*/
+.peer:checked ~ label > img.invertible {filter: invert(100%);}
+.peer:hover ~ label > img.invertible {filter: invert(100%);}
+
+/*
+  Tooltip classes inspired from https://www.w3schools.com/css/css_tooltip.asp
+*/
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+/* Common properties for tooltip text inside container */
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 170px;
+  background-color: #777;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 2px;
+  /* Short transition */
+  opacity: 0;
+  transition: opacity 1s;
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+}
+/* Common properties for arrow */
+.tooltip .tooltip-text::after {
+  content: '';
+  position: absolute;
+  margin-left: -8px;
+  border-width: 8px;
+  border-style: solid;
+}
+/* Specifics properties for top tooltip */
+.tooltip-top.tooltip .tooltip-text {
+  left: -35px;
+  bottom: 115%; /* Percentage of container height */
+  margin-left: -60px; /* Keep tooltip inside screen for elements on the left of the dialog */
+}
+/* Specific properties for bottom arrow of top tooltip */
+.tooltip-top.tooltip .tooltip-text::after {
+  top: 100%; /* At the bottom of the tooltip */
+  left: 70%;
+  border-color: #777 transparent transparent transparent;
+}
+/* Specifics properties for left tooltip */
+.tooltip-left.tooltip .tooltip-text {
+  top: -5px;
+  right: 115%; /* Percentage of container width */
+}
+/* Specific properties for right arrow of left tooltip */
+.tooltip-left.tooltip .tooltip-text::after {
+  top: 9px;
+  right: -16px; /* To the right of the tooltip */
+  border-color: transparent transparent transparent #777;
+}
+/*
+  Show the tooltip text when you mouse over the tooltip container.
+  Tooltips are applicable on:
+  - unchecked radio button label
+  - element with unconditional-tooltip class (in addition to tooltip class)
+*/
+.peer:not(:checked) ~ .tooltip:hover .tooltip-text,
+.unconditional-tooltip.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
