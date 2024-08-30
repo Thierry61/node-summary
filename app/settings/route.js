@@ -12,7 +12,7 @@ import { redirect } from "next/navigation"
 
 const settings = ['refresh', 'theme']
 
-export function GET(request) {
+export async function GET(request) {
   const searchParams = request.nextUrl.searchParams
   const action = searchParams.get('action')
   const cookieStore = cookies()
@@ -48,6 +48,10 @@ export function GET(request) {
 
   // Never use permanentRedirect, it's a pain to make Chrome forget it
   // (but there is a way thanks to https://www.neilwithdata.com/chrome-redirect-forget)
-  // TODO: 'replace' parameter doesn't seem to work (multiple entries are kept in the history)
-  redirect('/', 'replace')
+  // TODO: 'replace' value for type parameter doesn't seem to work (multiple entries are still kept in the history)
+  // I tried POST method (using formData instead of nextUrl.searchParam,
+  // and redirect of NextResponse instead of navigation) but this doesn't change anything.
+  // So I removed the parameter and the default value then applies ('push' for a server action)
+  // with no apparent change in behavior
+  redirect('/')
 }

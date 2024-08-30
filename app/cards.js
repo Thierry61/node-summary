@@ -87,13 +87,7 @@ function cbSeconds(totalSeconds) {
 
 // Format bitcoin amount to exactly 8 digits precision
 function cbBitcoinAmount(amount) {
-  let res = amount.toString()
-  let dotPosition = res.indexOf('.')
-  if (dotPosition == -1) {
-    res += "."
-    dotPosition = res.length - 1
-  }
-  res = res.padEnd(dotPosition + 8 + 1, '0')
+  const res = amount.toFixed(8)
   // Display regular 5 digits + dimmed last 3 digits (note that ledger or kraken display only the 5 digits)
   const splitPosition = res.length - 3
   return [[
@@ -108,9 +102,11 @@ function cbBitcoinAmount(amount) {
 // Compute subsidy from halving epoch
 // Note: this callback has an additional argument
 function cbSubsidy(current_epoch, delta) {
-  let epoch = current_epoch + delta
-  // TODO: Improve this before 2040! (next halving new subsidy field with more than 8 digits)
-  let subsidy = 50/(1<<epoch)
+  const epoch = current_epoch + delta
+  // Note that 2**epoch is better than 1<<epoch (the latter isn't correct for epoch >= 31)
+  let subsidy = 50/(2**epoch)
+  // Round down to the lowest sat (cf. table in https://www.binance.com/en-JP/square/post/361745)
+  subsidy = Math.floor(subsidy*1e8)/1e8
   return cbBitcoinAmount(subsidy)
 }
 
