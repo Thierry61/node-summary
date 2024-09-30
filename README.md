@@ -24,6 +24,10 @@ Adapt .env file at the root:
     - define BITCOIND_COOKIE_PATH to point to your bitcoin node `.cookie` file (when server is run directly on the same machine as the node)
     - set BITCOIND_USERNAME and BITCOIND_PASSWORD environment variables
     - don't set any of BITCOIND_COOKIE_PATH, BITCOIND_USERNAME and BITCOIND_PASSWORD environment variables for an unauthenticated server (like https://bitcoin-mainnet-archive.allthatnode.com:443 for example)
+  - set TIMINGS_LEVEL to define logging of fetch requests duration:
+    - 0 or absent: no logging
+    - 1: logging when batch duration is > 3 seconds
+    - 2: unconditional logging
 
 Install the dependencies:
 ```bash
@@ -48,6 +52,8 @@ BITCOIND_PASSWORD="<redacted>"
 BITCOIND_COOKIE_PATH=
 # Overwrite BITCOIND_HOST defined in .env file
 BITCOIND_HOST="http://192.168.110.121"
+# Log fetch timings when batch duration is > 3 seconds
+TIMINGS_LEVEL=1
 ```
 
 Build the web app with:
