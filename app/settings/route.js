@@ -39,7 +39,8 @@ export async function GET(request) {
         // Set cookies according to form data
         for (const paramName of settings) {
           const paramValue = searchParams.get(paramName)
-          cookieStore.set(paramName, paramValue)
+          // 400 days is the upper limit for Max-Age attribute (see https://developer.chrome.com/blog/cookie-max-age-expires)
+          cookieStore.set({ name: paramName, value: paramValue, maxAge: 400 * 24 * 3600 })
         }
       }
       // Note that we do nothing on 'cancel' action (keep current cookies values)
