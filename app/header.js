@@ -71,9 +71,24 @@ export default async function Header() {
   return (
     <header className='sticky top-0 z-30 w-full bg-white dark:bg-blue-800 dark:text-white flex flex-cols justify-between'>
       <div className='m-2'>
-        <Image className='inline mr-2' src='/btc.svg' width={24} height={24} alt="Bitcoin logo"/>
-        <span className='inline align-middle'>Node Summary - {vers_or_err}</span>
+        <a href='https://bitcoincore.org/en/about/' className='unconditional-tooltip tooltip-right tooltip inline'>
+          <Image className='inline' src='/btc.svg' width={24} height={24} alt="Bitcoin icon"/>
+          <span className='tooltip-text'>Bitcoin Core project</span>
+        </a>
+        { // GitHub logo from https://github.com/logos
+        <a href='https://github.com/Thierry61/node-summary' className='unconditional-tooltip tooltip-right tooltip ml-2 inline'>
+          <Image className='inline w-5 h-5 dark:invert' src='/github-mark.svg' width={24} height={24} alt="GitHub logo"/>
+          <span className='tooltip-text'>Source repository</span>
+        </a>
+        }
+        { // Noscript icon copied from Chrome settings
+        <span className='unconditional-tooltip tooltip-right tooltip ml-1.5 inline'>
+          <Image className='inline w-5 h-5 dark:invert' src='/no-script.svg' width={24} height={24} alt="No script icon"/>
+          <span className='tooltip-text'>Page without scripts</span>
+        </span>
+        }
       </div>
+      <span className='m-2 justify-center'>Node Summary {vers_or_err}</span>
       <div className='m-2 justify-end'>
         <form action='/settings'>
           <input type='hidden' id='action' name='action' value='open'/>

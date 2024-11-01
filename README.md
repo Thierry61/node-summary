@@ -14,6 +14,12 @@ The web page is still operational when javascript is disabled on browser because
 
 Note: Any mention of 192.168.110.121 throughout the document should be replaced by your own address of deployment.
 
+## Public live demo
+
+Web page: https://summary.btc-node.net/
+
+JSON API: https://summary.btc-node.net/api/summary
+
 ## Development
 
 Adapt .env file at the root:
