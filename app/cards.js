@@ -74,14 +74,20 @@ function cbPercent(val) {
 function cbSeconds(totalSeconds) {
   const absoluteSeconds = Math.abs(totalSeconds)
   const sign = totalSeconds >= 0 ? '' : '-'
-  const hours = Math.floor(absoluteSeconds / 3600)
+  const days = Math.floor(absoluteSeconds / (24 * 3600))
+  let hours = absoluteSeconds % (24 * 3600)
+  hours = Math.floor(hours / 3600)
   let seconds = absoluteSeconds % 3600
   const minutes = Math.floor(seconds / 60)
   seconds = seconds % 60
-  const res = [hours, minutes, seconds]
-    .filter((v, i) => v > 0 || i > 0)
-    .map(v => v.toString().padStart(2, '0'))
+  const res = [days, hours, minutes, seconds]
+    // Don't keep days if 0
+    // Don't keep hours if 0 except is days is > 0
+    .filter((v, i, arr) => v > 0 || i > 1 || i == 1 && arr[0] > 0)
+    // Don't format days on 2 digits
+    .map((v, i, arr) => v.toString().padStart((i == 0 && arr.length == 4) ? 0 : 2, '0'))
     .join(':')
+  // Don't display "d:" part because it would exceed units width limit and a non zero day happens only during IDB
   return [[sign + res, hours > 0 ? "hh:mm:ss" : "mm:ss"]]
 }
 
