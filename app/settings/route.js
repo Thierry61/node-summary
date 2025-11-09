@@ -15,7 +15,7 @@ const settings = ['refresh', 'theme']
 export async function GET(request) {
   const searchParams = request.nextUrl.searchParams
   const action = searchParams.get('action')
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   if (action) {
     if (action == 'open') {
       if (cookieStore.get('action')?.value == 'open') {

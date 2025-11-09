@@ -13,7 +13,7 @@ export const metadata = {
 // is that repeat factor in animations doesn't work properly.
 // Additionally this solution would need JavaScript client side.
 export default async function RootLayout({ children }) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const action = cookieStore.get('action')?.value
   let refresh = cookieStore.get('refresh')?.value
   // Default values when no cookies are defined:

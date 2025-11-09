@@ -32,7 +32,7 @@ export default async function Header() {
   const vers = await getVersion()
   const err = vers.err
   const vers_or_err = err == undefined ? vers.subversion : JSON.stringify(err)
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const action = cookieStore.get('action')?.value
   // Default values when no cookies are defined:
   // - refresh: twice the REVALIDATE parameter

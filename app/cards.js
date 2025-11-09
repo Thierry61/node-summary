@@ -1,4 +1,3 @@
-import React from 'react'
 import Card from './card'
 
 // Round to 1 digit precision and keep possible .0 at the end
@@ -91,9 +90,9 @@ function cbSeconds(totalSeconds) {
   return [[sign + res, hours > 0 ? "hh:mm:ss" : "mm:ss"]]
 }
 
-// Format bitcoin amount to exactly 8 digits precision
+// Format bitcoin amount to exactly 8 digits precision for display purpose
 function cbBitcoinAmount(amount) {
-  const res = amount.toFixed(8)
+  const [res, unit] = cbBitcoinAmountCmp(amount)[0]
   // Display regular 5 digits + dimmed last 3 digits (note that ledger or kraken display only the 5 digits)
   const splitPosition = res.length - 3
   return [[
@@ -101,19 +100,34 @@ function cbBitcoinAmount(amount) {
       <span>{res.substring(0, splitPosition)}</span>
       <span className="text-gray-400">{res.substring(splitPosition)}</span>
     </>,
-    "btc"
+    unit
+  ]]
+}
+// Same but for comparison purpose because comparing JSX elements generates errors since NextJS 16:
+// Error: Route "/" used `...params` or similar expression.
+// `params` is a Promise and must be unwrapped with `await` or `React.use()` before accessing its properties.
+// Learn more: https://nextjs.org/docs/messages/sync-dynamic-apis
+function cbBitcoinAmountCmp(amount) {
+  return [[
+    amount.toFixed(8),
+    "btc",
   ]]
 }
 
 // Compute subsidy from halving epoch
 // Note: this callback has an additional argument
-function cbSubsidy(current_epoch, delta) {
-  const epoch = current_epoch + delta
+function computeSubsidy(current_epoch, delta) {
+    const epoch = current_epoch + delta
   // Note that 2**epoch is better than 1<<epoch (the latter isn't correct for epoch >= 31)
   let subsidy = 50/(2**epoch)
   // Round down to the lowest sat (cf. table in https://www.binance.com/en-JP/square/post/361745)
-  subsidy = Math.floor(subsidy*1e8)/1e8
-  return cbBitcoinAmount(subsidy)
+  return Math.floor(subsidy*1e8)/1e8
+}
+function cbSubsidy(current_epoch, delta) {
+  return cbBitcoinAmount(computeSubsidy(current_epoch, delta))
+}
+function cbSubsidyCmp(current_epoch, delta) {
+  return cbBitcoinAmountCmp(computeSubsidy(current_epoch, delta))
 }
 
 function cbFee(fee) {
@@ -153,6 +167,9 @@ function cbEpoch(epoch) {
   const ord = (digit == 1 && tens != 1) ? 'st' : (digit == 2 && tens != 1) ? 'nd' : (digit == 3 && tens != 1) ? 'rd' : 'th'
   return [[epoch, <div key="1"><sup>{ord}</sup> epoch</div>]]
 }
+function cbEpochCmp(epoch) {
+  return [[epoch, "epoch"]]
+}
 
 // Function computing any displayed properties. They are computed twice:
 // - once with current values
@@ -164,33 +181,40 @@ function cbEpoch(epoch) {
 // - array of properties to traverse to get the data
 // - optional additional argument for callback
 // It returns an array of {v: <value>, u: <unit>, m: <modified flag>} objects.
-function raw_format(cb, summary, properties, optional_arg) {
+function raw_format(cb_display, summary, properties, optional_arg) {
+  // A second callback is needed because we can't compare jsx elements anymore,
+  // raw values are compared instead
+  const cb = cb_display == cbBitcoinAmount ? cbBitcoinAmountCmp :
+    cb_display == cbSubsidy ? cbSubsidyCmp:
+    cb_display == cbEpoch ? cbEpochCmp:
+    cb_display
   // Compute current array of [value, unit] pairs
   const val = properties.reduce((acc, property) => acc[property], summary)
   // Handles undefined instant TPS and fees at startup
   if (val == undefined) {
     return [{v: undefined, u: undefined, m: false}]
   }
-  const val_unit_pairs = cb(val, optional_arg)
+  const val_unit_pairs = cb_display(val, optional_arg)
   // Values are considered modified if there are no previous data
   if (! summary.last_res) {
     return val_unit_pairs.map((vu) => ({v: vu[0], u: vu[1], m: true}))
   }
   // Compute previous array of [value, unit] pairs
   const last_val = properties.reduce((acc, property) => acc[property], summary.last_res)
-  // Values are considered modified if previous value is undefined
+  // Values are considered modified when previous value is undefined
   if (last_val == undefined) {
     return val_unit_pairs.map((vu) => ({v: vu[0], u: vu[1], m: true}))
   }
   const last_val_unit_pairs = cb(last_val, optional_arg)
-  // Values are considered modified if array length changes
+  // All values are considered modified when array length changes
   let modified = val_unit_pairs.length != last_val_unit_pairs.length
-  return val_unit_pairs.map((vu, i) => {
-    // Current value is considered modified if it changes or its unit changes
-    // Note that we need to manage values and units in jsx format (btc amount and ordinal epoch numbers) and also we need to manage possible undefined value
-    const myToString = v => v == undefined ? "" : React.isValidElement(v) ? JSON.stringify(v) : v.toString()
+  const val_unit_pairs_raw = cb(val, optional_arg)
+  return val_unit_pairs_raw.map((vu, i) => {
+    // Current value is considered modified if it changes or its unit changes, also we need to manage possible undefined value
+    // In the past we could compare values and units in jsx format (btc amount and ordinal epoch numbers) but this doesn't work since NextJS 16
+    const myToString = v => v == undefined ? "" : v.toString()
     const m = modified || myToString(vu[0]) != myToString(last_val_unit_pairs[i][0]) || myToString(vu[1]) != myToString(last_val_unit_pairs[i][1])
-    return {v: vu[0], u: vu[1], m}
+    return {v: val_unit_pairs[i][0], u: val_unit_pairs[i][1], m}
   })
 }
 
