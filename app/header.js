@@ -101,7 +101,8 @@ export default async function Header() {
         {
           (action != 'open') ? null // For undefined (root path '/')
           : // For 'open' (/settings path)
-            <dialog className='mr-0 mt-2 block w-64 border-2 rounded-b-lg px-4 py-4 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-600 dark:text-white' id='dialog'>
+            // TODO: mr-0 doesn't work since tailwind 4 and ml-[calc(100%-256px)] is a workaroud to right align the dialog again
+            <dialog className='ml-[calc(100%-256px)] mt-2 block w-64 border-2 rounded-b-lg px-4 py-4 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-600 dark:text-white' id='dialog'>
               <form className='grid grid-cols-1 gap-y-4' action='/settings'>
                 <div className='font-bold text-center'>Settings</div>
                 <HR/>

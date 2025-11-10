@@ -1,6 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Previously darMode: 'selector' in tailwind.config.js */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Previously with a different syntax under theme/extend in tailwind.config.js */
+@theme {
+  /* 3 columns at 832px instead of 768px */
+  --breakpoint-md: 52rem;
+
+  /* Little animation for a new value */
+  --animate-update: blink 0.4s ease-in-out 1;
+  @keyframes blink {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+}
 
 /*
   Global style to invert color of an SVG image inside a label:
