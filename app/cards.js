@@ -181,7 +181,8 @@ function cbEpochCmp(epoch) {
 // - array of properties to traverse to get the data
 // - optional additional argument for callback
 // It returns an array of {v: <value>, u: <unit>, m: <modified flag>} objects.
-function raw_format(cb_display, summary, properties, optional_arg) {
+// Refresh flag is to remove blinking when settings dialog is opened
+function raw_format(cb_display, summary, refresh, properties, optional_arg) {
   // A second callback is needed because we can't compare jsx elements anymore,
   // raw values are compared instead
   const cb = cb_display == cbBitcoinAmount ? cbBitcoinAmountCmp :
@@ -213,19 +214,19 @@ function raw_format(cb_display, summary, properties, optional_arg) {
     // Current value is considered modified if it changes or its unit changes, also we need to manage possible undefined value
     // In the past we could compare values and units in jsx format (btc amount and ordinal epoch numbers) but this doesn't work since NextJS 16
     const myToString = v => v == undefined ? "" : v.toString()
-    const m = modified || myToString(vu[0]) != myToString(last_val_unit_pairs[i][0]) || myToString(vu[1]) != myToString(last_val_unit_pairs[i][1])
+    const m = refresh && (modified || myToString(vu[0]) != myToString(last_val_unit_pairs[i][0]) || myToString(vu[1]) != myToString(last_val_unit_pairs[i][1]))
     return {v: val_unit_pairs[i][0], u: val_unit_pairs[i][1], m}
   })
 }
 
 // Intermediate functions to insert a global modified flag indicating if the title itself is modified
 // (false by default, but needed for sub-versions when their ordering changes)
-function format_items(items, modified_flag) {
-  return {m: modified_flag, items}
+function format_items(items, refresh, modified_flag) {
+  return {m: modified_flag && refresh, items}
 }
-function format(cb, summary, properties, optional_arg) {
-  const items = raw_format(cb, summary, properties, optional_arg)
-  return format_items(items, false)
+function format(cb, summary, refresh, properties, optional_arg) {
+  const items = raw_format(cb, summary, refresh, properties, optional_arg)
+  return format_items(items, refresh, false)
 }
 
 // Computes 4 top sub-version strings
@@ -244,73 +245,73 @@ function topVersions(summary) {
   return ret
 }
 
-export default async function Cards({summary}) {
+export default async function Cards({ summary, refresh }) {
   // Pre-compute 4 top previous versions
   const prev_sv_items = !summary.last_res ? undefined : topVersions(summary.last_res)
   return (
     <div className="text-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
       <Card title={"Blockchain"} items={[
-        {"Transactions": format(cbTransactions, summary, ["ntx"])},
+        {"Transactions": format(cbTransactions, summary, refresh, ["ntx"])},
         // In reality block height is the number of blocks in the blockchain minus 1 (but who cares?)
-        {"Block height": format(cbBlocks, summary, ["blocks"])},
-        {"Difficulty epoch": format(cbEpoch, summary, ["diff_epoch"])},
-        {"Halving epoch": format(cbEpoch, summary, ["halving_epoch"])},
+        {"Block height": format(cbBlocks, summary, refresh, ["blocks"])},
+        {"Difficulty epoch": format(cbEpoch, summary, refresh, ["diff_epoch"])},
+        {"Halving epoch": format(cbEpoch, summary, refresh, ["halving_epoch"])},
       ]}/>
       <Card title={"Recommended fees"} items={[
-        {"ASAP": format(cbFee, summary, ["feerates", "1"])},
-        {"1 hour": format(cbFee, summary, ["feerates", "6"])},
-        {"6 hours": format(cbFee, summary, ["feerates", "36"])},
-        {"1 day": format(cbFee, summary, ["feerates", "144"])},
+        {"ASAP": format(cbFee, summary, refresh, ["feerates", "1"])},
+        {"1 hour": format(cbFee, summary, refresh, ["feerates", "6"])},
+        {"6 hours": format(cbFee, summary, refresh, ["feerates", "36"])},
+        {"1 day": format(cbFee, summary, refresh, ["feerates", "144"])},
       ]}/>
       <Card title={"Mempool"} items={[
-        {"Transactions": format(cbTransactions, summary, ["mempool", "ntx"])},
-        {"Fees": format(cbBitcoinAmount, summary, ["mempool", "fees"])},
-        {"Instant TPS": format(cbTPS, summary, ["mempool", "ntx_per_second"])},
-        {"Monthly TPS": format(cbTPS, summary, ["ntx_per_second"])},
+        {"Transactions": format(cbTransactions, summary, refresh, ["mempool", "ntx"])},
+        {"Fees": format(cbBitcoinAmount, summary, refresh, ["mempool", "fees"])},
+        {"Instant TPS": format(cbTPS, summary, refresh, ["mempool", "ntx_per_second"])},
+        {"Monthly TPS": format(cbTPS, summary, refresh, ["ntx_per_second"])},
       ]}/>
       <Card title={"Next block"} items={[
-        {"Transactions": format(cbTransactions, summary, ["template", "ntx"])},
-        {"Fees": format(cbBitcoinAmount, summary, ["template", "fees"])},
-        {"Subsidy": format(cbSubsidy, summary, ["halving_epoch"], -1)},
-        {"Elapsed time": format(cbSeconds, summary, ["time_since_last_bloc"])},
+        {"Transactions": format(cbTransactions, summary, refresh, ["template", "ntx"])},
+        {"Fees": format(cbBitcoinAmount, summary, refresh, ["template", "fees"])},
+        {"Subsidy": format(cbSubsidy, summary, refresh, ["halving_epoch"], -1)},
+        {"Elapsed time": format(cbSeconds, summary, refresh, ["time_since_last_block"])},
       ]}/>
       <Card title={"Next retarget"} items={[
-        {"Blocks left": format(cbBlocks, summary, ["next_retarget", "blocks"])},
-        {"Estim. adjustment": format(cbPercent, summary, ["next_retarget", "estimated_diff_adj_percent"])},
-        {"Last adjustment": format(cbPercent, summary, ["prev_diff_adj_percent"])},
-        {"Estim. delay": format(cbDays, summary, ["next_retarget", "days"])},
+        {"Blocks left": format(cbBlocks, summary, refresh, ["next_retarget", "blocks"])},
+        {"Estim. adjustment": format(cbPercent, summary, refresh, ["next_retarget", "estimated_diff_adj_percent"])},
+        {"Last adjustment": format(cbPercent, summary, refresh, ["prev_diff_adj_percent"])},
+        {"Estim. delay": format(cbDays, summary, refresh, ["next_retarget", "days"])},
       ]}/>
       <Card title={"Next halving"} items={[
-        {"Blocks left": format(cbBlocks, summary, ["next_halving", "blocks"])},
-        {"Diff. retargets": format(cbRetargets, summary, ["next_halving", "retargets"])},
-        {"New subsidy": format(cbSubsidy, summary, ["halving_epoch"], 0)},
-        {"Estim. delay": format(cbDays, summary, ["next_halving", "days"])},
+        {"Blocks left": format(cbBlocks, summary, refresh, ["next_halving", "blocks"])},
+        {"Diff. retargets": format(cbRetargets, summary, refresh, ["next_halving", "retargets"])},
+        {"New subsidy": format(cbSubsidy, summary, refresh, ["halving_epoch"], 0)},
+        {"Estim. delay": format(cbDays, summary, refresh, ["next_halving", "days"])},
       ]}/>
       <Card title={"Node"} items={[
-        {"Uptime": format(cbDays, summary, ["uptime_days"])},
+        {"Uptime": format(cbDays, summary, refresh, ["uptime_days"])},
         // Note that there is a very small error when computing modified flag because summary.uptime_days is used for both current and previous values
         // (but to put this on perspective after one hour uptime error is only 5/3600 = 0.14% and error decreases more and more when time passes)
-        {"Upload": format(cbThroughput, summary, ["totalbytessent"], summary.uptime_days)},
-        {"Download": format(cbThroughput, summary, ["totalbytesrecv"], summary.uptime_days)},
-        {"Data size": format(cbSize, summary, ["size_on_disk"])},
+        {"Upload": format(cbThroughput, summary, refresh, ["totalbytessent"], summary.uptime_days)},
+        {"Download": format(cbThroughput, summary, refresh, ["totalbytesrecv"], summary.uptime_days)},
+        {"Data size": format(cbSize, summary, refresh, ["size_on_disk"])},
       ]}/>
       <Card title={`Peers (${summary.peers.total})`} items={[
-        {"IPv4": format(cbPeers, summary, ["peers", "ipv4"])},
-        {"IPv6": format(cbPeers, summary, ["peers", "ipv6"])},
-        {"Onion": format(cbPeers, summary, ["peers", "onion"])},
+        {"IPv4": format(cbPeers, summary, refresh, ["peers", "ipv4"])},
+        {"IPv6": format(cbPeers, summary, refresh, ["peers", "ipv6"])},
+        {"Onion": format(cbPeers, summary, refresh, ["peers", "onion"])},
         /* Electrum server is an example of a not publicly routable node */
-        {"Not publicly routable": format(cbPeers, summary, ["peers", "not_publicly_routable"])},
+        {"Not publicly routable": format(cbPeers, summary, refresh, ["peers", "not_publicly_routable"])},
       ]}/>
       <Card title={"Top versions"} items={
         topVersions(summary).map((sv, index) => {
           let o = {}
           let items = Object.values(sv)[0]
           // Compare with previous value at same index
-          items[0].m = !prev_sv_items ? true : Object.values(prev_sv_items[index])[0][0].v != items[0].v
+          items[0].m = refresh && (!prev_sv_items ? true : Object.values(prev_sv_items[index])[0][0].v != items[0].v)
           // Take into account version ordering change to compute modified flag on item titles
           let agent = Object.keys(sv)[0]
           const modified_title = !prev_sv_items ? true : agent != Object.keys(prev_sv_items[index])[0]
-          o[agent] = format_items(items, modified_title)
+          o[agent] = format_items(items, refresh, modified_title)
           return o
         })}/>
     </div>

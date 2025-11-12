@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 import { loadSummary } from '../../../lib/load-summary'
 
 export async function GET(_request) {
-    const summary = await loadSummary()
+    const summary = await loadSummary(true)
     if (summary.err == undefined) {
         return new NextResponse('', { status: 200, statusCode: 'OK'})
     } else {
