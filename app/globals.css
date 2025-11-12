@@ -14,6 +14,14 @@
     0%, 100% { opacity: 0.2; }
     50% { opacity: 1; }
   }
+
+  /* Dialog pop-up from upper right angle */
+  --animate-dialog: pop-up 0.5s ease-out;
+  @keyframes pop-up {
+    0% {
+      transform: translate(50%,-50%) scale(0);
+    }
+  }
 }
 
 /*

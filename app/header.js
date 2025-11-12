@@ -1,7 +1,6 @@
 // Note: SVG icons originate from https://feathericons.com/ (open source with MIT license)
 
 import Image from 'next/image'
-import { cookies } from 'next/headers'
 import { getVersion } from '../lib/load-summary'
 
 // TODO: Add layout choice (1x9, 2x5, 3x3, 5x2, 9x1, dynamic)
@@ -28,40 +27,19 @@ function refreshLabel (refreshDuration) {
   return refreshDuration == 'Never' ? 'Never' : `${refreshDuration} seconds`
 }
 
-export default async function Header() {
+// Note that refresh and refreshDef are in seconds and must not be converted by refreshDuration function
+export default async function Header({ action, theme, refresh, themeDef, refreshDef }) {
   const vers = await getVersion()
   const err = vers.err
   const vers_or_err = err == undefined ? vers.subversion : JSON.stringify(err)
-  const cookieStore = await cookies()
-  const action = cookieStore.get('action')?.value
-  // Default values when no cookies are defined:
-  // - refresh: twice the REVALIDATE parameter
-  // - theme: light
-  // For consistency these values should be the same as default values defined in layout.js
-  let refreshDef = refreshDuration(2)
-  let lightDef = true
-  let darkDef = false
+  // Radio buttons checked status
+  const [ lightChk, darkChk ] = (theme == 'dark') ? [ false, true ] : [ true, false ]
   // Refresh button tooltip fragments
   const refreshReset = refreshLabel(refreshDef)
-  const themeReset = 'light'
+  const themeReset = themeDef
   // Cancel button tooltip fragments
-  let refreshCancel = refreshReset
-  let themeCancel = themeReset
-  if (action == 'open') {
-    // Possibly overwrite default values and cancel button tooltip fragment with current cookies
-    const refresh = cookieStore.get('refresh')?.value
-    if (refresh != undefined) {
-      // Note that 'refresh' parameter is already in seconds (5, 10, 20, ...)
-      refreshDef = refresh
-      refreshCancel = refreshLabel(refresh)
-    }
-    const theme = cookieStore.get('theme')?.value
-    if (theme == 'dark') {
-      lightDef = false
-      darkDef = true
-      themeCancel = 'dark'
-    }
-  }
+  const refreshCancel = refreshLabel(refresh)
+  const themeCancel = theme
   // Complete tooltips
   const tooltipReset = `Set to default values (refresh: ${refreshReset}, theme: ${themeReset})`
   const tooltipCancel = `Keep previous values (refresh: ${refreshCancel}, theme: ${themeCancel})`
@@ -101,20 +79,20 @@ export default async function Header() {
         {
           (action != 'open') ? null // For undefined (root path '/')
           : // For 'open' (/settings path)
-            // TODO: mr-0 doesn't work since tailwind 4 and ml-[calc(100%-256px)] is a workaroud to right align the dialog again
-            <dialog className='ml-[calc(100%-256px)] mt-2 block w-64 border-2 rounded-b-lg px-4 py-4 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-600 dark:text-white' id='dialog'>
+            // TODO: Utilies like mr-0 or object-top don't work since tailwind 4 so a calc formula is used as a workaroud to right align or center the dialog
+            <dialog className='animate-dialog ml-[calc(100%-260px)] mt-2 block w-64 shadow-xl dark:shadow-white shadow-blue-800 border-1 rounded-b-lg px-4 py-4 border-blue-600 dark:border-blue-400 bg-white dark:bg-blue-800 dark:text-white' id='dialog'>
               <form className='grid grid-cols-1 gap-y-4' action='/settings'>
                 <div className='font-bold text-center'>Settings</div>
                 <HR/>
                 <div className=''>Refresh rate:</div>
                 { /* Intermediate div elements for tooltip on select element. Padded to increase its height needed for tooltip relative bottom position */ }
                 <div className='-my-3 pb-8 unconditional-tooltip tooltip-top tooltip'>
-                  <select name='refresh' className='w-full pb-1 rounded-lg bg-blue-100 dark:text-black dark:bg-blue-200' defaultValue={refreshDef}>
+                  <select name='refresh' className='w-full pb-1 rounded-lg bg-blue-100 dark:text-black dark:bg-blue-200' defaultValue={refresh}>
                     <option value={refreshDuration(1)}>{refreshLabel(refreshDuration(1))}</option>
                     <option value={refreshDuration(2)}>{refreshLabel(refreshDuration(2))}</option>
                     <option value={refreshDuration(4)}>{refreshLabel(refreshDuration(4))}</option>
                     <option value={refreshDuration(6)}>{refreshLabel(refreshDuration(6))}</option>
-                    <option value='Nevers'>Never</option>
+                    <option value='Never'>Never</option>
                   </select>
                   <span className='tooltip-text'>Select browser refresh rate</span>
                 </div>
@@ -124,7 +102,7 @@ export default async function Header() {
                 <div className='-mt-4 flex flex-cols justify-between items-center'>
                   { /* include (input, label) pairs inside elements so that peer sibling selectors work independently */ }
                   <div className=''>
-                    <input type="radio" name='theme' id='light' value='light' className='peer hidden' defaultChecked={lightDef}/>
+                    <input type="radio" name='theme' id='light' value='light' className='peer hidden' defaultChecked={lightChk}/>
                     <label htmlFor='light' className={highlightButton} name='Light'>
                       <Image className='-mt-1 inline mr-2 invertible' src='/sun.svg' width={24} height={24} alt="Sun"/>
                       (Light)
@@ -132,7 +110,7 @@ export default async function Header() {
                     </label>
                   </div>
                   <div className=''>
-                    <input type="radio" name='theme' id='dark' value='dark' className='peer hidden' defaultChecked={darkDef}/>
+                    <input type="radio" name='theme' id='dark' value='dark' className='peer hidden' defaultChecked={darkChk}/>
                       <label htmlFor='dark' className={highlightButton} name='Dark'>
                       <span className='tooltip-text'>Switch to dark theme</span>
                       <Image className='-mt-1 inline mr-2 invertible' src='/moon.svg' width={24} height={24} alt="Sun"/>
