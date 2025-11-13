@@ -5,7 +5,7 @@ import Cards from './cards'
 import Err from './err'
 
 export default async function PeriodicComponent({ action }) {
-  // Don't do: 
+  // Don't do:
   //    let summary = await fetch(`http://localhost:3003/api/summary`)
   //    summary = await summary.json()
   // because host and port are uncertain and the API behavior could differ in the future
